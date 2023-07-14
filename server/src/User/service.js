@@ -1,12 +1,35 @@
 const allQueries = require("../models/Queries");
 const nodemailer = require("nodemailer");
-const config = require("../config.json");
+const config = require("../../config.json");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 module.exports.changePassword = async function (req, res) {
-  const { email } = req.user;
-  const { oldPassword, newPassword, confirmNewPassword } = req.body;
+  try {
+    const { email } = req.user;
+    const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+    const userRealPassword = await allQueries.findUserPassword(email);
+
+    if (oldPassword !== userRealPassword)
+      return res.status(400).send("You entered incorrect old password");
+
+    if (newPassword !== confirmNewPassword)
+      return res
+        .status(400)
+        .send("The new password and the confirm password do not match");
+
+    const { success, message } = await allQueries.updatePassword(
+      email,
+      newPassword
+    );
+
+    if (!success) return res.status(400).send(message);
+    return res.status(200).send("Password changed succesfully");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error in server try again later");
+  }
 };
 
 const transporter = nodemailer.createTransport({
@@ -67,7 +90,7 @@ module.exports.login = async function (req, res) {
     if (!userAuthentication)
       return res
         .status(400)
-        .send("No user found with the specified email please register");
+        .send("Email or password are wrong please try again");
 
     const currentTime = new Date();
     const lastTimeLogin = await allQueries.lastTimeLogin(email);

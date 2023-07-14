@@ -1,5 +1,5 @@
 const db = require("./Connection");
-const config = require("../config.json");
+const config = require("../../config.json");
 
 //Checking if the user exists in the database by hie email
 const checkUserExists = async (email) => {
@@ -203,9 +203,64 @@ const changeUserPasswordFromEmail = async (email, code) => {
       console.log(
         "Changing the password of the user with a value from the email"
       );
-      return true;
+      return resolve(true);
+    } catch (err) {
+      return reject(err);
+    }
+  });
+};
+
+const checkPasswordInHistory = (email, password) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const collection = db.collection("passwordHistory");
+      const query = { email, password };
+
+      await collection.findOne(query, (err, result) => {
+        if (err) return reject(err);
+        if (result) {
+          console.log("User did use this password before!");
+          return resolve(false);
+        }
+        console.log("User did not use this password!");
+        return resolve(true);
+      });
+    } catch (err) {
+      return reject(err);
+    }
+  });
+};
+
+const updatePassword = async (email, newPassword) => {
+  const usersCollection = db.collection("Users");
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const check = await checkPasswordInHistory(email, newPassword);
+      if (!check) {
+        return {
+          success: false,
+          message:
+            "The entered password is already used please enter a password you never used",
+        };
+      }
+
+      const pushPassword = await insertPasswordHistory(email, newPassword);
+      if (!pushPassword) {
+        throw "Failed pushing to password history";
+      }
+
+      await usersCollection.updateOne(
+        { email },
+        { $set: { password: newPassword } }
+      );
+
+      return {
+        success: true,
+        message: "Password is changed",
+      };
     } catch (error) {
-      throw error;
+      return reject(err);
     }
   });
 };
@@ -223,4 +278,6 @@ module.exports = {
   findUserPassword,
   incrementLogins,
   changeUserPasswordFromEmail,
+  checkPasswordInHistory,
+  updatePassword,
 };

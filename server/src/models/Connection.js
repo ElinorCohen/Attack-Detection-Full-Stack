@@ -10,7 +10,7 @@ try {
   const db = mongoose.connection;
 
   db.once("open", () => {
-    console.log("Connected to the database");
+    console.log("Connected to mongoDB");
   });
 
   module.exports = db;
