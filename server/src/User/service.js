@@ -150,7 +150,7 @@ module.exports.register = async function (req, res) {
 
     const userExists = await allQueries.checkUserExists(email);
     if (userExists)
-      return res.status(400).send("You are already registered please login");
+      return res.status(400).send("An account with this email already exists");
 
     const userInserted = await allQueries.insertUser(
       email,
