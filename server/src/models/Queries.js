@@ -1,7 +1,7 @@
 const db = require("./Connection");
 const config = require("../../config.json");
 
-//Checking if the user exists in the database by hie email
+//Checking if the user exists in the database by his email
 const checkUserExists = async (email) => {
   return new Promise(async (resolve, reject) => {
     const userCollection = db.collection("Users");
@@ -66,6 +66,7 @@ const insertPasswordHistory = async (email, password) => {
       password,
       currentDate,
     };
+
     const isBiggerThanThreePassword = await isMoreThan3Passwords(email);
     if (isBiggerThanThreePassword) await deleteOldPasswordHistory(email);
     await passwordCollection.insertOne(passwordObject, (err) => {
@@ -198,7 +199,7 @@ const changeUserPasswordFromEmail = async (email, code) => {
   return new Promise(async (resolve, reject) => {
     try {
       await db
-        .collection("users_details")
+        .collection("Users")
         .updateOne({ email }, { $set: { password: code } });
       console.log(
         "Changing the password of the user with a value from the email"
@@ -238,14 +239,15 @@ const updatePassword = async (email, newPassword) => {
     try {
       const check = await checkPasswordInHistory(email, newPassword);
       if (!check) {
-        return {
+        return resolve({
           success: false,
           message:
             "The entered password is already used please enter a password you never used",
-        };
+        });
       }
 
       const pushPassword = await insertPasswordHistory(email, newPassword);
+
       if (!pushPassword) {
         throw "Failed pushing to password history";
       }
@@ -255,11 +257,23 @@ const updatePassword = async (email, newPassword) => {
         { $set: { password: newPassword } }
       );
 
-      return {
+      return resolve({
         success: true,
         message: "Password is changed",
-      };
+      });
     } catch (error) {
+      return reject(err);
+    }
+  });
+};
+
+const activateUser = (email) => {
+  return new Promise(async (resolve, reject) => {
+    const usersCollection = db.collection("Users");
+    try {
+      await usersCollection.updateOne({ email }, { $set: { activated: true } });
+      return resolve(true);
+    } catch (err) {
       return reject(err);
     }
   });
@@ -280,4 +294,5 @@ module.exports = {
   changeUserPasswordFromEmail,
   checkPasswordInHistory,
   updatePassword,
+  activateUser,
 };

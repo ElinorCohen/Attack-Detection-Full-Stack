@@ -78,7 +78,7 @@ module.exports.forgotPassword = async function (req, res) {
     return res.status(200).send("Sent a new password, please check your email");
   } catch (error) {
     console.log(error);
-    return res.status(500).send("Error in the backend");
+    return res.status(500).send("Error in server please try again later");
   }
 };
 
@@ -116,7 +116,7 @@ module.exports.login = async function (req, res) {
       const token = jwt.sign({ email }, process.env.JWT_KEY);
 
       return res
-        .cookies("access_token", token, {
+        .cookie("access_token", token, {
           httpOnly: true,
           maxAge: 1000 * 60 * 60 * 24,
         })
@@ -163,7 +163,7 @@ module.exports.register = async function (req, res) {
     if (userInserted === false)
       return res
         .status(500)
-        .send("Some error occured while inserting the user");
+        .send("An error occured in the server please try again later");
 
     return res.status(200).send("Registered successfully");
   } catch (error) {
