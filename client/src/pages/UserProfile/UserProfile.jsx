@@ -1,17 +1,7 @@
-import {
-    Wrapper,
-} from "./UserProfile.style";
-
-import NavBar from "../../components/NavBar/NavBar";
-
+import { Wrapper } from "./UserProfile.style";
 
 function Profile() {
-
-    return (
-        <Wrapper>
-            <NavBar />
-        </Wrapper>
-    );
+  return <Wrapper></Wrapper>;
 }
 
 export default Profile;

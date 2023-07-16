@@ -1,16 +1,7 @@
-import {
-    Wrapper,
-} from "./AttackHistory.style";
-
-import NavBar from "../../components/NavBar/NavBar";
+import { Wrapper } from "./AttackHistory.style";
 
 function History() {
-
-    return (
-        <Wrapper>
-            <NavBar />
-        </Wrapper>
-    );
+  return <Wrapper></Wrapper>;
 }
 
 export default History;

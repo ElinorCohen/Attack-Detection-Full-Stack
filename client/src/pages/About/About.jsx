@@ -1,18 +1,7 @@
-import {
-    Wrapper,
-} from "./About.style";
-
-import NavBar from "../../components/NavBar/NavBar";
-
-
+import { Wrapper } from "./About.style";
 
 function About() {
-
-    return (
-        <Wrapper>
-            <NavBar />
-        </Wrapper>
-    );
+  return <Wrapper></Wrapper>;
 }
 
 export default About;

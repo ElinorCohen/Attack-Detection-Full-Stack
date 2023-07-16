@@ -1,60 +1,31 @@
 import {
-    BarWrapper,
-    Title,
-    LottieLogo,
-    LogoWrapper,
-    // Bars,
-    NavMenu,
-    NavLink
+  BarWrapper,
+  Title,
+  LottieLogo,
+  LogoWrapper,
+  // Bars,
+  NavMenu,
+  NavItem,
 } from "./NavBar.style";
 
-import AnimatedLogo from '../../assets/EDgL26btNA.json';
-import { useNavigate } from "react-router-dom";
-
+import AnimatedLogo from "../../assets/EDgL26btNA.json";
 
 function NavBar() {
-
-    const navigate = useNavigate();
-
-    function navigateHomePage() {
-        navigate('/home');
-    }
-
-    function navigateProfile() {
-        navigate('/profile');
-    }
-    function navigateHistory() {
-        navigate('/history');
-    }
-
-    function navigateAbout() {
-        navigate('/about');
-    }
-
-    return (
-        <BarWrapper>
-            {/* <Bars /> */}
-            <LogoWrapper>
-                <Title>ATTACK</Title>
-                <LottieLogo animationData={AnimatedLogo} />
-                <Title>METER</Title>
-            </LogoWrapper>
-            <NavMenu>
-                <NavLink onClick={navigateHomePage}>
-                    Home
-                </NavLink>
-                <NavLink onClick={navigateProfile}>
-                    Profile
-                </NavLink>
-                <NavLink onClick={navigateHistory}>
-                    History
-                </NavLink>
-                <NavLink onClick={navigateAbout}>
-                    About
-                </NavLink>
-            </NavMenu>
-        </BarWrapper>
-    );
+  return (
+    <BarWrapper>
+      <LogoWrapper>
+        <Title>ATTACK</Title>
+        <LottieLogo animationData={AnimatedLogo} />
+        <Title>METER</Title>
+      </LogoWrapper>
+      <NavMenu>
+        <NavItem to="home">Home</NavItem>
+        <NavItem to="profile">Profile</NavItem>
+        <NavItem to="history">History</NavItem>
+        <NavItem to="about">About</NavItem>
+      </NavMenu>
+    </BarWrapper>
+  );
 }
 
 export default NavBar;
