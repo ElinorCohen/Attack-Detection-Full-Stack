@@ -14,12 +14,11 @@ import {
 } from "./Login.style";
 
 import { useNavigate } from "react-router-dom";
-import userIcon from './user.png';
-import pswIcon from './padlock.png';
-import AnimatedLogo from '../../assets/EDgL26btNA.json'
+import userIcon from "./user.png";
+import pswIcon from "./padlock.png";
+import AnimatedLogo from "../../assets/EDgL26btNA.json";
 
 function Login() {
-
   const navigate = useNavigate();
 
   function handleSubmit(event) {
@@ -31,11 +30,11 @@ function Login() {
   }
 
   function navigateHomePage() {
-    navigate('/home');
+    navigate("/home");
   }
 
   function navigateRegister() {
-    navigate('/home');
+    navigate("/register");
   }
 
   return (
@@ -62,7 +61,8 @@ function Login() {
         </Fields>
         <ForgotPassword to="/ForgotPassword">Forgot password?</ForgotPassword>
         <SubmitButton onClick={navigateHomePage}>LOGIN</SubmitButton>
-        <RegisterField>OR
+        <RegisterField>
+          OR
           <SubmitButton onClick={navigateRegister}>REGISTER</SubmitButton>
         </RegisterField>
       </Form>
