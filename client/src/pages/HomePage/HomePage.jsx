@@ -1,7 +1,7 @@
-// import { Wrapper } from "./HomePage.style";
 import { useState } from "react";
 
 import Table from "../../components/Table/Table";
+import Search from "../../components/Search/Search";
 import { myData } from "../../data/exploits_data";
 
 function Home() {
@@ -10,9 +10,11 @@ function Home() {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage); // Update the page state with the new page value
   };
-
   return (
-    <Table data={myData} page={currentPage} onPageChange={handlePageChange} />
+    <>
+      <Search />
+      <Table data={myData} page={currentPage} onPageChange={handlePageChange} />
+    </>
   );
 }
 

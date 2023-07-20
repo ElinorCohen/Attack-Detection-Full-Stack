@@ -9,8 +9,40 @@ import {
   PageNumber,
 } from "./Table.style";
 import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 
 function Table({ data, page, onPageChange }) {
+  //calculation of table height
+
+  const [tableContainerHeight, setTableContainerHeight] = useState("75px");
+
+  const handleResize = () => {
+    const navBarHeight = document.getElementById("navbar").clientHeight;
+    const paginationHeight = document.getElementById("pagination").clientHeight;
+    const searchHeight = document.getElementById("search").clientHeight;
+    const windowHeight = window.innerHeight;
+
+    const desiredTableContainerHeight =
+      windowHeight - navBarHeight - paginationHeight - searchHeight;
+
+    setTableContainerHeight(`${desiredTableContainerHeight}px`);
+  };
+
+  useEffect(() => {
+    // Add event listener to handle window resize
+    window.addEventListener("resize", handleResize);
+
+    // Initial calculation on component mount
+    handleResize();
+
+    // Clean up event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  //end of calculation of table height
+
   const columns = Object.keys(data[0] || {});
   const itemsPerPage = 30; // Limitation of 50 rows per page
   const MAX_VISIBLE_PAGES = 3;
@@ -36,7 +68,7 @@ function Table({ data, page, onPageChange }) {
       pages.push(
         <PageNumber
           key={1}
-          active={page === 1}
+          active={page === 1 ? "true" : undefined}
           onClick={() => handlePageChange(1)}
         >
           1
@@ -51,7 +83,7 @@ function Table({ data, page, onPageChange }) {
       pages.push(
         <PageNumber
           key={i}
-          active={i === page}
+          active={i === page ? "true" : undefined}
           onClick={() => handlePageChange(i)}
         >
           {i}
@@ -66,7 +98,7 @@ function Table({ data, page, onPageChange }) {
       pages.push(
         <PageNumber
           key={totalPages}
-          active={page === totalPages}
+          active={page === totalPages ? "true" : undefined}
           onClick={() => handlePageChange(totalPages)}
         >
           {totalPages}
@@ -78,8 +110,11 @@ function Table({ data, page, onPageChange }) {
   };
 
   return (
-    <div style={{ height: "100%" }}>
-      <TableContainer id="TableContainer">
+    <div>
+      <TableContainer
+        id="TableContainer"
+        style={{ height: tableContainerHeight }}
+      >
         <StyledTable>
           <thead>
             <TableRow>
@@ -99,7 +134,7 @@ function Table({ data, page, onPageChange }) {
           </tbody>
         </StyledTable>
       </TableContainer>
-      <PaginationWrapper>
+      <PaginationWrapper id="pagination">
         <PaginationButton
           onClick={() => onPageChange(page - 1)}
           disabled={isPrevDisabled}

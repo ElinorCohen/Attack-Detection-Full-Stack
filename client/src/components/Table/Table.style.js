@@ -4,7 +4,8 @@ export const TableContainer = styled.div`
   width: 100%;
   overflow: auto;
   height: 100%;
-  margin-top: 26px;
+  position: relative;
+  /* margin-top: 26px; */
   &::-webkit-scrollbar {
     width: 10px;
     background-color: #f5f5f5;
@@ -24,7 +25,6 @@ export const TableContainer = styled.div`
 export const StyledTable = styled.table`
   width: 100%;
   border-spacing: 1px;
-  /* border-collapse: collapse; */
 `;
 
 export const TableHeader = styled.th`
@@ -33,6 +33,7 @@ export const TableHeader = styled.th`
   border-bottom: 2px solid #e1dbdb;
   position: sticky;
   top: 0;
+  z-index: 0;
 `;
 
 export const TableRow = styled.tr`
@@ -55,6 +56,9 @@ export const PaginationWrapper = styled.div`
   align-items: center;
   padding: 12px;
   padding-right: 8px;
+  /* position: fixed; */
+  /* width: 100%; */
+  /* overflow: hidden; */
 `;
 
 export const PaginationButton = styled.button`

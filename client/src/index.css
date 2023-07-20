@@ -10,34 +10,17 @@
   -webkit-text-size-adjust: 100%;
 }
 
-@keyframes background {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
 body {
   margin: 0;
   place-items: center;
   width: 100vw;
   min-height: 100vh;
-  flex-direction: column;
-  align-items: center;
-  background-image: linear-gradient(
-      90deg,
-      rgba(0, 255, 159, 0.8),
-      rgb(165 43 43 / 0%) 70.71%
-    ),
-    linear-gradient(127deg, rgba(0, 184, 255, 0.8), rgba(0, 30, 255, 0) 70.71%),
-    linear-gradient(280deg, rgba(189, 0, 255, 0.8), rgba(214, 0, 255, 0) 70.71%);
+  overflow: hidden;
+  background-image: radial-gradient(
+    circle at top center,
+    rgba(86, 207, 225, 1) -10%,
+    rgba(94, 96, 206, 1) 80%,
+    rgba(105, 48, 195, 1) 100%
+  );
   background-position: top center;
-  animation: background 4.5s ease infinite;
-  background-size: 200% 100%;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
