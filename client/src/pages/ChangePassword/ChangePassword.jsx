@@ -31,7 +31,6 @@ function ChangePassword() {
             placeholder="Confirm New Password"
           />
         </FieldWrapper>
-
         <SubmitButton>Set Password</SubmitButton>
       </Form>
     </Wrapper>
