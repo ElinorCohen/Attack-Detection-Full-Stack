@@ -76,8 +76,8 @@ module.exports.forgotPassword = async function (req, res) {
     const isSent = await sendConfirmationEmail(email, hashedValue);
     if (!isSent) return res.status(500).send("Error sending email");
     return res.status(200).send("Sent a new password, please check your email");
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.log(err);
     return res.status(500).send("Error in server please try again later");
   }
 };
@@ -129,7 +129,7 @@ module.exports.login = async function (req, res) {
 
     //If count logins is more or equals than 3 we need to update the last time he tried to enter and update time stamp
     if (isBlocked) {
-      //Updating the time oh his last try to log in
+      //Updating the time to his last try to log in
       await allQueries.updateTimeStamp(email);
       return res
         .status(400)
@@ -138,8 +138,8 @@ module.exports.login = async function (req, res) {
     return res
       .status(400)
       .send("Password or email are wrong! Please try again");
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     return res.status(500).send("Error adding user");
   }
 };
@@ -168,6 +168,6 @@ module.exports.register = async function (req, res) {
     return res.status(200).send("Registered successfully");
   } catch (error) {
     console.error(error);
-    return res.status(500).send("Error adding user");
+    return res.status(500).send("Error in server please try again later");
   }
 };

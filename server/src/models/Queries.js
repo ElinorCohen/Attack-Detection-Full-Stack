@@ -37,21 +37,25 @@ const insertUser = async (
   };
 
   return new Promise(async (resolve, reject) => {
-    const insertedUser = await usersCollection.insertOne(user);
-    if (!insertedUser) {
-      console.log("Could not push user to Users");
-      return resolve(false);
+    try {
+      const insertedUser = await usersCollection.insertOne(user);
+      if (!insertedUser) {
+        console.log("Could not push user to Users collection");
+        return resolve(false);
+      }
+
+      const insertedPassword = await insertPasswordHistory(email, password);
+
+      if (!insertedPassword) {
+        console.log("Something went wrong");
+        return resolve(false);
+      }
+
+      console.log("Inserted to password history and Users");
+      return resolve(true);
+    } catch (err) {
+      return reject(err);
     }
-
-    const insertedPassword = await insertPasswordHistory(email, password);
-
-    if (!insertedPassword) {
-      console.log("Something went wrong");
-      return resolve(false);
-    }
-
-    console.log("Inserted to password history and Users");
-    return resolve(true);
   });
 };
 
