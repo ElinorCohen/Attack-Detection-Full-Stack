@@ -1,8 +1,8 @@
 const allQueries = require("../models/Queries");
 const nodemailer = require("nodemailer");
 const config = require("../../config.json");
-const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 module.exports.changePassword = async function (req, res) {
   try {
@@ -12,7 +12,9 @@ module.exports.changePassword = async function (req, res) {
     const userRealPassword = await allQueries.findUserPassword(email);
 
     if (oldPassword !== userRealPassword)
-      return res.status(400).send("You entered incorrect old password");
+      return res
+        .status(400)
+        .send("Your old password is incorrect please try again");
 
     if (newPassword !== confirmNewPassword)
       return res
@@ -40,45 +42,73 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sha1 = (data) => {
-  return crypto.createHash("sha1").update(data).digest("hex");
-};
-
-const sendConfirmationEmail = async (email, hashedValue) => {
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL,
-      to: email,
-      subject: "This is your new password",
-      html: `<h1>Confirmation Code</h1>
-              <p>Please use this as your new password until you change it</p>
-              <p>${hashedValue}</p>
-            </div>`,
-    });
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-};
-
 module.exports.forgotPassword = async function (req, res) {
   try {
-    const code = Math.floor(Math.random() * 1000000);
-    const hashedValue = sha1(code.toString());
     const { email } = req.body;
-
     const userExists = await allQueries.checkUserExists(email);
 
     if (!userExists) return res.status(404).send("Error: User does not exist");
 
-    await allQueries.changeUserPasswordFromEmail(email, hashedValue);
-    const isSent = await sendConfirmationEmail(email, hashedValue);
-    if (!isSent) return res.status(500).send("Error sending email");
-    return res.status(200).send("Sent a new password, please check your email");
+    const token = jwt.sign({ email }, process.env.JWT_KEY);
+    const magicLink = `http://localhost:8000/api/user/changeForgottenPassword?token=${token}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Forgot Password? Change it here - AttackOmeter",
+      html: `
+        <p>Click the following button to change your password</p>
+        <a href="${magicLink}" style="display: inline-block; background-color: #007BFF; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px;">Change Password</a>
+      `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res
+          .status(500)
+          .send(
+            "An error occurred while sending the link try again later please"
+          );
+      }
+      console.log("Magic link sent:", info.response);
+      return res
+        .cookie("access_token", token, {
+          httpOnly: true,
+        })
+        .status(200)
+        .send("Please check your email in order to change your password");
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).send("Error in server please try again later");
+  }
+};
+
+module.exports.changeForgottenPassword = async function (req, res) {
+  try {
+    const { newPassword, newConfirmPassword } = req.body;
+    const { email } = req.user;
+    console.log(newPassword, newConfirmPassword);
+
+    if (newPassword !== newConfirmPassword)
+      return res
+        .status(400)
+        .send(
+          "The new password and the confirm password do not match please try again"
+        );
+
+    const { success, message } = await allQueries.updatePassword(
+      email,
+      newPassword
+    );
+    if (!success) return res.status(400).send(message);
+    return res.status(200).send("The password is changed succesfully");
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .send("Error changing password please try again later");
   }
 };
 
@@ -110,8 +140,9 @@ module.exports.login = async function (req, res) {
     }
 
     const realPassword = await allQueries.findUserPassword(email);
+    const isUserActivated = await allQueries.isActivated(email);
 
-    if (password === realPassword) {
+    if (password === realPassword && isUserActivated) {
       await allQueries.resetLogins(email);
       const token = jwt.sign({ email }, process.env.JWT_KEY);
 
@@ -122,7 +153,12 @@ module.exports.login = async function (req, res) {
         })
         .status(200)
         .send("Login succeeded");
-    }
+    } else if (password === realPassword && isUserActivated === false)
+      return res
+        .status(400)
+        .send(
+          "Please confirm your account with a link that was sent to your email"
+        );
 
     //If his password is not correct we increment the loging by 1
     await allQueries.incrementLogins(email);
@@ -152,6 +188,10 @@ module.exports.register = async function (req, res) {
     if (userExists)
       return res.status(400).send("An account with this email already exists");
 
+    const token = jwt.sign({ email }, process.env.JWT_KEY, {
+      expiresIn: "1h",
+    });
+
     const userInserted = await allQueries.insertUser(
       email,
       password,
@@ -160,14 +200,92 @@ module.exports.register = async function (req, res) {
       country,
       status
     );
-    if (userInserted === false)
+    if (!userInserted)
       return res
         .status(500)
-        .send("An error occured in the server please try again later");
+        .send("An error occurred in the server, please try again later");
 
-    return res.status(200).send("Registered successfully");
+    const magicLink = `http://localhost:8000/api/user/activate?token=${token}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Account Activation - AttackOmeter",
+      html: `
+        <p>Click the following button to activate your account:</p>
+        <a href="${magicLink}" style="display: inline-block; background-color: #007BFF; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px;">Activate Account</a>
+      `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res
+          .status(500)
+          .send(
+            "An error occurred while sending the link try again later please"
+          );
+      }
+      console.log("Magic link sent:", info.response);
+      return res
+        .cookie("access_token", token, {
+          httpOnly: true,
+        })
+        .status(200)
+        .send(
+          "Registration successful. Check your email for the magic link to activate your account."
+        );
+    });
   } catch (error) {
     console.error(error);
+    return res.status(500).send("Error in server, please try again later");
+  }
+};
+
+module.exports.activate = async function (req, res) {
+  try {
+    const { email } = req.user;
+    await allQueries.activateUser(email);
+
+    return res
+      .status(200)
+      .send("Account activated successfully please sign in");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error! Please try again later");
+  }
+};
+
+module.exports.searchInTable = async function (req, res) {
+  try {
+    const { searchString, sortBy, sortOrder } = req.body;
+
+    const result = await allQueries.searchFromTable(
+      searchString,
+      sortBy,
+      sortOrder
+    );
+
+    if (result === false)
+      return res.status(404).send("No results found with this sub string");
+
+    return res.status(200).send(result);
+  } catch (error) {
     return res.status(500).send("Error in server please try again later");
+  }
+};
+
+module.exports.deleteAccount = async function (req, res) {
+  try {
+    const { email } = req.user;
+    const isDeleted = await allQueries.deleteUser(email);
+    if (!isDeleted)
+      return res.status(500).send("Could not delete user try again later");
+
+    return res.status(200).send("Your account is deleted successfully");
+  } catch (error) {
+    return res
+      .status(500)
+      .send("Error while deleting user please try again later");
   }
 };
