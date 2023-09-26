@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Select from "react-select";
 import countryList from "react-select-country-list";
 import {
@@ -10,7 +10,12 @@ import {
   RegisterButton,
   WrapParagraphAndLink,
   AlignSelections,
+  LogoWrapper,
+  Title,
+  LottieLogo,
 } from "./Register.style";
+
+import AnimatedLogo from "../../assets/EDgL26btNA.json";
 
 function Register() {
   const [selectedCountry, setSelectedCountry] = useState(null);
@@ -27,7 +32,6 @@ function Register() {
   }
 
   const statusOptions = [
-    { value: "", label: "* Status" },
     { value: "student", label: "Student" },
     { value: "teacher", label: "Teacher" },
     { value: "employee", label: "Employee" },
@@ -70,6 +74,11 @@ function Register() {
 
   return (
     <Wrapper>
+      <LogoWrapper>
+        <Title>ATTACK</Title>
+        <LottieLogo animationData={AnimatedLogo} />
+        <Title>METER</Title>
+      </LogoWrapper>
       <Form onSubmit={handleSubmit}>
         <FieldWrapper>
           <Input name="first name" type="text" placeholder="* First name" />

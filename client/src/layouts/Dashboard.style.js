@@ -45,7 +45,7 @@ export const HamburgerIconBar = styled.span`
 `;
 
 export const BarWrapper = styled.nav`
-  background: #001eff5e;
+  background: #00031a33;
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -55,7 +55,7 @@ export const NavItem = styled(NavLink)`
   float: left;
   text-align: center;
   padding: 27px 45px;
-  color: black;
+  color: #dddada;
   text-decoration: none;
   font-size: 20px;
   &:hover {
@@ -98,7 +98,7 @@ export const NavMenu = styled.div`
     left: 0;
     bottom: 0;
     width: 100%;
-    background-color: #001eff5e;
+    background-color: #00031a33;
     padding: 20px;
     z-index: 1;
     opacity: 0.9;
@@ -108,7 +108,8 @@ export const NavMenu = styled.div`
 export const Title = styled.div`
   font-family: "Impact", fantasy;
   font-size: 3rem;
-  font-weight: 400;
+  font-weight: 300;
+  color: #dddada;
 `;
 
 export const LottieLogo = styled(Lottie)`

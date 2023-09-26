@@ -16,11 +16,17 @@ body {
   width: 100vw;
   min-height: 100vh;
   overflow: hidden;
-  background-image: radial-gradient(
+  /* background-image: radial-gradient(
     circle at top center,
-    rgba(86, 207, 225, 1) -10%,
-    rgba(94, 96, 206, 1) 80%,
-    rgba(105, 48, 195, 1) 100%
-  );
+    rgba(3, 57, 108, 1) 87%,
+    rgba(0, 91, 150, 1) 56%,
+    rgba(179, 205, 224, 1) 0%
+  ); */
+  /* background-color: #a7bdcc; */
+  background-color: rgb(47, 53, 65);
+  /* background-color: rgb(121, 143, 182); */
+  /* background-image: url("./assets/vecteezy_blue-abstract-background-blue-background-design-abstract_17023139.jpg"); */
   background-position: top center;
+  /* background-size: cover;
+  background-repeat: no-repeat; */
 }

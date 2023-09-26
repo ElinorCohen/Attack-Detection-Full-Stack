@@ -5,6 +5,7 @@ export const TableContainer = styled.div`
   overflow: auto;
   height: 100%;
   position: relative;
+  box-shadow: 1px 0px 10px black;
   /* margin-top: 26px; */
   &::-webkit-scrollbar {
     width: 10px;
@@ -29,16 +30,25 @@ export const StyledTable = styled.table`
 
 export const TableHeader = styled.th`
   padding: 12px;
-  background-color: #f3ecec;
-  border-bottom: 2px solid #e1dbdb;
+  background-color: rgb(59 66 80);
+  border-bottom: 1.5px solid #383838;
+  color: whitesmoke;
+  font-weight: 450;
   position: sticky;
   top: 0;
   z-index: 0;
+
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const TableRow = styled.tr`
   &:nth-child(even) {
-    background-color: #f9f9f9cc;
+    background-color: #f9f9f996;
   }
   &:nth-child(odd) {
     background-color: #ffffff6e;
@@ -47,6 +57,12 @@ export const TableRow = styled.tr`
 
 export const TableCell = styled.td`
   padding: 12px;
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   /* border: 1px solid #e0e0e0; */
 `;
 
