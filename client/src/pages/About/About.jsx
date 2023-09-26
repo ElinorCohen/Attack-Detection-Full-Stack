@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import {
   AboutContainer,
-  // CallToAction,
-  // FeatureItem,
-  // FeatureList,
-  // SectionContent,
-  // SectionTitle,
+  CallToAction,
+  FeatureItem,
+  FeatureList,
+  SectionContent,
+  SectionTitle,
 } from "./About.style";
 
 function About() {
@@ -42,7 +42,7 @@ function About() {
       <AboutContainer style={{ height: aboutContainerHeight }}>
         {/*insert relevant content*/}
 
-        {/* <SectionTitle>About Us</SectionTitle>
+        <SectionTitle>About Us</SectionTitle>
         <SectionContent>
           Welcome to Attack-O-Meter, your ultimate platform for web security
           testing and training. Our mission is to empower developers, security
@@ -118,7 +118,7 @@ function About() {
           Remember, our goal is to promote responsible web security practices
           and foster a culture of continuous learning. Together, {"let's"} make
           the web a safer place for everyone.
-        </SectionContent> */}
+        </SectionContent>
       </AboutContainer>
     </div>
   );

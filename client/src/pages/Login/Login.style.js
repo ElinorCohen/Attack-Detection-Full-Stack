@@ -64,6 +64,7 @@ export const Title = styled.h1`
   font-family: "Impact", fantasy;
   font-size: 6rem;
   font-weight: 400;
+  color: #dddada;
 `;
 
 export const Icon = styled.img`
