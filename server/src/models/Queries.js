@@ -61,18 +61,17 @@ const insertUser = async (
 
 //Inserting the password to the history so he cant use passwords he used in the past
 const insertPasswordHistory = async (email, password) => {
-  const currentDate = new Date();
-
   return new Promise(async (resolve, reject) => {
     const passwordCollection = db.collection("passwordHistory");
     const passwordObject = {
       email,
       password,
-      currentDate,
+      currentDate: new Date(),
     };
 
     const isBiggerThanThreePassword = await isMoreThan3Passwords(email);
     if (isBiggerThanThreePassword) await deleteOldPasswordHistory(email);
+
     await passwordCollection.insertOne(passwordObject, (err) => {
       if (err) return reject(err);
       return resolve(true);
@@ -242,6 +241,7 @@ const updatePassword = async (email, newPassword) => {
   return new Promise(async (resolve, reject) => {
     try {
       const check = await checkPasswordInHistory(email, newPassword);
+
       if (!check) {
         return resolve({
           success: false,
@@ -266,12 +266,12 @@ const updatePassword = async (email, newPassword) => {
         message: "Password is changed",
       });
     } catch (error) {
-      return reject(err);
+      return reject(error);
     }
   });
 };
 
-const activateUser = (email) => {
+const activate = (email) => {
   return new Promise(async (resolve, reject) => {
     const usersCollection = db.collection("Users");
     try {
@@ -280,6 +280,76 @@ const activateUser = (email) => {
     } catch (err) {
       return reject(err);
     }
+  });
+};
+
+const searchFromTable = (searchString, sortBy, sortOrder) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const usersCollection = db.collection("Users");
+
+      const query = {
+        $or: [
+          { date: { $regex: searchString, $options: "i" } },
+          { attackType: { $regex: searchString, $options: "i" } },
+          { description: { $regex: searchString, $options: "i" } },
+        ],
+      };
+
+      usersCollection
+        .find(query)
+        .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
+        .toArray((err, result) => {
+          if (err) return reject(err);
+          return resolve(result);
+        });
+    } catch (err) {
+      return reject(err);
+    }
+  });
+};
+
+const isActivated = (email) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const usersCollection = db.collection("Users");
+
+      usersCollection.findOne({ email }, (err, user) => {
+        if (err) return reject(err);
+
+        if (user?.activated) return resolve(true);
+        return resolve(false);
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+};
+
+const deleteAccount = (email) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const userCollection = db.collection("Users");
+      userCollection.deleteOne({ email }, (err) => {
+        if (err) return reject(err);
+        return resolve(true);
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+};
+
+const getData = () => {
+  return new Promise((resolve, reject) => {
+    const exploitsCollection = db.collection("exploits.data");
+    console.log(exploitsCollection);
+
+    exploitsCollection.find({}).toArray((err, data) => {
+      if (err) return reject(err);
+
+      return resolve(data);
+    });
   });
 };
 
@@ -298,5 +368,9 @@ module.exports = {
   changeUserPasswordFromEmail,
   checkPasswordInHistory,
   updatePassword,
-  activateUser,
+  activate,
+  searchFromTable,
+  isActivated,
+  deleteAccount,
+  getData,
 };
