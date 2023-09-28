@@ -2,7 +2,6 @@ const allQueries = require("../models/Queries");
 const nodemailer = require("nodemailer");
 const config = require("../../config.json");
 const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
 
 module.exports.changePassword = async function (req, res) {
   try {
@@ -89,7 +88,6 @@ module.exports.changeForgottenPassword = async function (req, res) {
   try {
     const { newPassword, newConfirmPassword } = req.body;
     const { email } = req.user;
-    console.log(newPassword, newConfirmPassword);
 
     if (newPassword !== newConfirmPassword)
       return res
@@ -157,7 +155,7 @@ module.exports.login = async function (req, res) {
       return res
         .status(400)
         .send(
-          "Please confirm your account with a link that was sent to your email"
+          "Please activate your account by a link that was sent to your email"
         );
 
     //If his password is not correct we increment the loging by 1
@@ -245,7 +243,7 @@ module.exports.register = async function (req, res) {
 module.exports.activate = async function (req, res) {
   try {
     const { email } = req.user;
-    await allQueries.activateUser(email);
+    await allQueries.activate(email);
 
     return res
       .status(200)
@@ -278,7 +276,7 @@ module.exports.searchInTable = async function (req, res) {
 module.exports.deleteAccount = async function (req, res) {
   try {
     const { email } = req.user;
-    const isDeleted = await allQueries.deleteUser(email);
+    const isDeleted = await allQueries.deleteAccount(email);
     if (!isDeleted)
       return res.status(500).send("Could not delete user try again later");
 
@@ -287,5 +285,16 @@ module.exports.deleteAccount = async function (req, res) {
     return res
       .status(500)
       .send("Error while deleting user please try again later");
+  }
+};
+
+module.exports.getData = async function (req, res) {
+  try {
+    const data = await allQueries.getData();
+    if (!data) return res.status(400).send("Error data is missing");
+    return res.status(200).send(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Error in back please try again later");
   }
 };

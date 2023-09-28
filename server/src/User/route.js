@@ -10,12 +10,14 @@ const {
   activate,
   changeForgottenPassword,
   deleteAccount,
+  getData,
 } = require("./service");
 
 //Unprotected routes
 router.post("/login", login);
 router.post("/forgotPassword", forgotPassword);
 router.post("/register", register);
+router.get("/getData", getData);
 
 //Protected routes
 router.use(verifyToken);

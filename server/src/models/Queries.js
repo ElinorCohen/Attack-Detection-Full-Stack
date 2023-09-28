@@ -271,7 +271,7 @@ const updatePassword = async (email, newPassword) => {
   });
 };
 
-const activateUser = (email) => {
+const activate = (email) => {
   return new Promise(async (resolve, reject) => {
     const usersCollection = db.collection("Users");
     try {
@@ -326,7 +326,7 @@ const isActivated = (email) => {
   });
 };
 
-const deleteUser = (email) => {
+const deleteAccount = (email) => {
   return new Promise((resolve, reject) => {
     try {
       const userCollection = db.collection("Users");
@@ -337,6 +337,19 @@ const deleteUser = (email) => {
     } catch (error) {
       return reject(error);
     }
+  });
+};
+
+const getData = () => {
+  return new Promise((resolve, reject) => {
+    const exploitsCollection = db.collection("exploits.data");
+    console.log(exploitsCollection);
+
+    exploitsCollection.find({}).toArray((err, data) => {
+      if (err) return reject(err);
+
+      return resolve(data);
+    });
   });
 };
 
@@ -355,8 +368,9 @@ module.exports = {
   changeUserPasswordFromEmail,
   checkPasswordInHistory,
   updatePassword,
-  activateUser,
+  activate,
   searchFromTable,
   isActivated,
-  deleteUser,
+  deleteAccount,
+  getData,
 };
