@@ -342,14 +342,17 @@ const deleteAccount = (email) => {
 
 const getData = () => {
   return new Promise((resolve, reject) => {
-    const exploitsCollection = db.collection("exploits.data");
+    const exploitsCollection = db.collection("exploits-data.data");
     console.log(exploitsCollection);
 
-    exploitsCollection.find({}).toArray((err, data) => {
-      if (err) return reject(err);
+    exploitsCollection
+      .find({})
+      .limit(1)
+      .toArray((err, data) => {
+        if (err) return reject(err);
 
-      return resolve(data);
-    });
+        return resolve(data);
+      });
   });
 };
 

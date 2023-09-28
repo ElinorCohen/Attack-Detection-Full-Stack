@@ -50,3 +50,4 @@ dist-ssr
 *.sw?
 .env
 server/src/env
+server/src/models/Queries.js
