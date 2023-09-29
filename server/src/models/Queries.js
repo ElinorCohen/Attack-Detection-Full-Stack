@@ -1,5 +1,7 @@
 const db = require("./Connection");
 const config = require("../../config.json");
+const mongoose = require("mongoose");
+const { link } = require("fs");
 
 //Checking if the user exists in the database by his email
 const checkUserExists = async (email) => {
@@ -340,18 +342,47 @@ const deleteAccount = (email) => {
   });
 };
 
-const getData = () => {
-  return new Promise((resolve, reject) => {
-    const exploitsCollection = db.collection("exploits.data");
-    console.log(exploitsCollection);
+const getData = (page) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const exploitsCollection = db.collection("Exploits");
 
-    exploitsCollection.find({}).toArray((err, data) => {
-      if (err) return reject(err);
+      const itemsPerPage = 50;
+      const skip = (page - 1) * itemsPerPage;
 
-      return resolve(data);
-    });
+      const projection = {
+        "BASE SCORE (TABLE)": 0,
+        EPSS: 0,
+        DESCRIPTION: 0,
+        _id: 0, // Exclude _id
+      };
+      console.log(`PAGE: ${page}`);
+      console.log(`SKIP: ${skip}`);
+
+      const allData = await exploitsCollection
+        .find({})
+        .project(projection)
+        .skip(skip)
+        .limit(itemsPerPage)
+        .toArray();
+
+      resolve(allData);
+    } catch (error) {
+      console.error("Error in getData:", error);
+      reject(error);
+    }
   });
 };
+
+// const getData = () => {
+//   return new Promise(async (resolve, reject) => {
+//     const exploitsCollection = db.collection("Data");
+//     // console.log(exploitsCollection);
+
+//     const allData = await exploitsCollection.find({}).limit(2).toArray();
+//     console.log("All data:", allData);
+//   });
+// };
 
 module.exports = {
   checkUserExists,

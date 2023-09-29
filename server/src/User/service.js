@@ -290,7 +290,14 @@ module.exports.deleteAccount = async function (req, res) {
 
 module.exports.getData = async function (req, res) {
   try {
-    const data = await allQueries.getData();
+    const page = req.params.page;
+    console.log(`PAGEEEEEEE: ${page}`);
+    // res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    // res.setHeader("Expires", "0");
+    // res.setHeader("Pragma", "no-cache");
+    //res.send(`Page: ${page}`);
+
+    const data = await allQueries.getData(page);
     if (!data) return res.status(400).send("Error data is missing");
     return res.status(200).send(data);
   } catch (error) {
