@@ -17,7 +17,7 @@ const {
 router.post("/login", login);
 router.post("/forgotPassword", forgotPassword);
 router.post("/register", register);
-router.get("/getData", getData);
+router.get("/getData/:page", getData);
 
 //Protected routes
 router.use(verifyToken);
