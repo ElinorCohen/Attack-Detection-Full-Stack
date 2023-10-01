@@ -6,10 +6,15 @@ import {
   TableCell,
   PaginationWrapper,
   PaginationButton,
-  //PageNumber,
+  LoadingAnimation,
+  LoadingWrapper,
 } from "./Table.style";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
+
+import AnimatedLoading1 from "../../assets/lotties/loading1.json";
+// import AnimatedLoading2 from "../../assets/lotties/loading2.json";
+// import AnimatedLoading3 from "../../assets/lotties/loading3.json";
 
 // function Table({ data, page, onPageChange }) {
 //   //calculation of table height
@@ -211,14 +216,18 @@ function Table({ data, page, onPageChange, loading }) {
           </thead>
           <tbody>
             {loading ? (
-              <tr>
-                <td colSpan={columns.length}>Loading...</td>
-              </tr>
+              <LoadingWrapper>
+                <LoadingAnimation animationData={AnimatedLoading1} />
+              </LoadingWrapper>
             ) : (
               data.map((item, index) => (
                 <TableRow key={index}>
                   {columns.map((column) => (
-                    <TableCell key={column}>{item[column]}</TableCell>
+                    <TableCell key={column}>
+                      {Array.isArray(item[column])
+                        ? item[column].join(", ")
+                        : item[column]}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))

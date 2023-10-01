@@ -13,15 +13,15 @@ import {
   NavIconImg,
 } from "./Dashboard.style";
 
-import AnimatedLogo from "../assets/EDgL26btNA.json";
-import HomePic from "../assets/home.png";
-import ProfilePic from "../assets/user.png";
-import HistoryPic from "../assets/history.png";
-import AboutPic from "../assets/about.png";
-import HomePicActive from "../assets/homeActive.png";
-import ProfilePicActive from "../assets/userActive.png";
-import HistoryPicActive from "../assets/historyActive.png";
-import AboutPicActive from "../assets/aboutActive.png";
+import AnimatedLogo from "../assets/lotties/EDgL26btNA.json";
+import HomePic from "../assets/icons/home.png";
+import ProfilePic from "../assets/icons/user.png";
+import HistoryPic from "../assets/icons/history.png";
+import AboutPic from "../assets/icons/about.png";
+import HomePicActive from "../assets/icons/homeActive.png";
+import ProfilePicActive from "../assets/icons/userActive.png";
+import HistoryPicActive from "../assets/icons/historyActive.png";
+import AboutPicActive from "../assets/icons/aboutActive.png";
 
 function Dashboard() {
   const [open, setOpen] = useState(false);

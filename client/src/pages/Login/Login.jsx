@@ -16,7 +16,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import userIcon from "./user.png";
 import pswIcon from "./padlock.png";
-import AnimatedLogo from "../../assets/EDgL26btNA.json";
+import AnimatedLogo from "../../assets/lotties/EDgL26btNA.json";
 
 function Login() {
   const navigate = useNavigate();

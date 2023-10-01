@@ -15,7 +15,7 @@ import {
   LottieLogo,
 } from "./Register.style";
 
-import AnimatedLogo from "../../assets/EDgL26btNA.json";
+import AnimatedLogo from "../../assets/lotties/EDgL26btNA.json";
 
 function Register() {
   const [selectedCountry, setSelectedCountry] = useState(null);
