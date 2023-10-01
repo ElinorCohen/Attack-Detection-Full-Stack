@@ -5,7 +5,7 @@ import {
   SearchWrapper,
   SearchBar,
 } from "./Search.style";
-import searchIcon from "../../assets/find.png";
+import searchIcon from "../../assets/icons/find.png";
 
 function Search() {
   const [input, setInput] = useState("");

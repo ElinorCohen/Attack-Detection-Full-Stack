@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import Lottie from "lottie-react";
 
 export const TableContainer = styled.div`
   width: 100%;
@@ -6,7 +7,6 @@ export const TableContainer = styled.div`
   height: 100%;
   position: relative;
   box-shadow: 1px 0px 10px black;
-  /* margin-top: 26px; */
   &::-webkit-scrollbar {
     width: 10px;
     background-color: #f5f5f5;
@@ -26,24 +26,25 @@ export const TableContainer = styled.div`
 export const StyledTable = styled.table`
   width: 100%;
   border-spacing: 1px;
+  text-align: left;
 `;
 
 export const TableHeader = styled.th`
-  padding: 12px;
+  padding: 13px;
   background-color: rgb(59 66 80);
   border-bottom: 1.5px solid #383838;
   color: whitesmoke;
-  font-weight: 450;
+  font-weight: bold;
   position: sticky;
   top: 0;
   z-index: 0;
-
-  width: 100%;
+  letter-spacing: 1px;
   table-layout: auto;
   border-collapse: collapse;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
 `;
 
 export const TableRow = styled.tr`
@@ -57,7 +58,6 @@ export const TableRow = styled.tr`
 
 export const TableCell = styled.td`
   padding: 12px;
-  width: 100%;
   table-layout: auto;
   border-collapse: collapse;
   white-space: nowrap;
@@ -101,4 +101,17 @@ export const PageNumber = styled(PaginationButton)`
     cursor: pointer;
     opacity: 0.75;
   }
+`;
+
+export const LoadingAnimation = styled(Lottie)`
+  animation-duration: 0.01;
+  max-height: 17rem;
+  width: 17rem;
+`;
+
+export const LoadingWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 `;

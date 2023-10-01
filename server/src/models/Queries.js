@@ -356,8 +356,6 @@ const getData = (page) => {
         DESCRIPTION: 0,
         _id: 0, // Exclude _id
       };
-      console.log(`PAGE: ${page}`);
-      console.log(`SKIP: ${skip}`);
 
       const allData = await exploitsCollection
         .find({})
@@ -373,16 +371,6 @@ const getData = (page) => {
     }
   });
 };
-
-// const getData = () => {
-//   return new Promise(async (resolve, reject) => {
-//     const exploitsCollection = db.collection("Data");
-//     // console.log(exploitsCollection);
-
-//     const allData = await exploitsCollection.find({}).limit(2).toArray();
-//     console.log("All data:", allData);
-//   });
-// };
 
 module.exports = {
   checkUserExists,

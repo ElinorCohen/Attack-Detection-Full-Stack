@@ -25,7 +25,7 @@ function Home() {
       console.log("Response:", response);
       // Assuming the response contains an array of data
       setData(response.data);
-      setLoading(false);
+      if (response.data.length > 0) setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
