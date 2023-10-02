@@ -25,7 +25,7 @@ export const TableContainer = styled.div`
 
 export const StyledTable = styled.table`
   width: 100%;
-  border-spacing: 1px;
+  border-spacing: 1.5px;
   text-align: left;
 `;
 
@@ -44,7 +44,7 @@ export const TableHeader = styled.th`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: center;
+  /* text-align: center; */
 `;
 
 export const TableRow = styled.tr`
@@ -57,8 +57,10 @@ export const TableRow = styled.tr`
 `;
 
 export const TableCell = styled.td`
+  max-width: 185px;
+  min-width: 160px;
   padding: 12px;
-  table-layout: auto;
+  /* table-layout: auto; */
   border-collapse: collapse;
   white-space: nowrap;
   overflow: hidden;
@@ -113,5 +115,37 @@ export const LoadingWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-top: 80px;
   height: 100%;
+`;
+
+export const SortButtonImg = styled.img`
+  width: 11px;
+  height: 11px;
+  padding-right: 10px;
+  opacity: ${(props) => (props.active ? 1.0 : 0.3)};
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  /* &.active {
+    width: 25px;
+    height: 25px;
+  } */
+`;
+
+export const HeaderTextContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const HeaderText = styled.div`
+  flex: 1; /* Take up most of the available space */
+`;
+
+export const SortContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 `;

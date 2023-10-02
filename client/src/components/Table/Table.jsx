@@ -8,11 +8,19 @@ import {
   PaginationButton,
   LoadingAnimation,
   LoadingWrapper,
+  HeaderText,
+  HeaderTextContainer,
+  SortButtonImg,
+  SortContainer,
 } from "./Table.style";
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import axios from "axios";
 
 import AnimatedLoading1 from "../../assets/lotties/loading1.json";
+
+import SortAsc from "../../assets/icons/sort-up-whitesmoke.png";
+import SortDesc from "../../assets/icons/caret-down-whitesmoke.png.png";
 // import AnimatedLoading2 from "../../assets/lotties/loading2.json";
 // import AnimatedLoading3 from "../../assets/lotties/loading3.json";
 
@@ -168,7 +176,106 @@ import AnimatedLoading1 from "../../assets/lotties/loading1.json";
 
 // import axios from "axios"; // Import Axios for API requests
 
-function Table({ data, page, onPageChange, loading }) {
+function Table({ url_data_route }) {
+  const [data, setData] = useState([]);
+  const [page, setCurrentPage] = useState(1); // Initial page
+  const [loading, setLoading] = useState(true);
+  const [sortFields, setSortFields] = useState([]);
+
+  const fetchDataForPage = useCallback(
+    async (page, sortFields) => {
+      try {
+        // Build the sorting criteria from sortFields
+        let sortCriteria = {};
+        if (sortFields) {
+          sortCriteria = sortFields.reduce((criteria, field) => {
+            criteria[field.name] = field.order === "asc" ? 1 : -1;
+            return criteria;
+          }, {});
+        }
+
+        // Make the API request with sorting criteria
+        const response = await axios.get(
+          `http://localhost:8000/api/User/${url_data_route}/${page}`,
+          {
+            params: { sort: sortCriteria },
+          }
+        );
+
+        // Update state with the fetched data
+        setData(response.data);
+        if (response.data.length > 0) setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    },
+    [url_data_route]
+  );
+
+  // Function to handle button click and update sorting criteria
+  const handleSortClick = (fieldName, sortOrder) => {
+    // Check if the field is already in sortFields
+    const existingSortFieldIndex = sortFields.findIndex(
+      (field) => field.name === fieldName
+    );
+
+    if (existingSortFieldIndex !== -1) {
+      // If the field is already in sortFields, toggle its sortOrder
+      const updatedSortFields = [...sortFields];
+      if (
+        sortOrder === "asc" &&
+        sortFields[existingSortFieldIndex].order === "asc"
+      ) {
+        updatedSortFields.splice(existingSortFieldIndex, 1); // Remove the element
+      } else if (
+        sortOrder === "desc" &&
+        sortFields[existingSortFieldIndex].order === "desc"
+      ) {
+        updatedSortFields.splice(existingSortFieldIndex, 1); // Remove the element
+      } else if (
+        sortOrder === "desc" &&
+        sortFields[existingSortFieldIndex].order === "asc"
+      ) {
+        updatedSortFields[existingSortFieldIndex].order = "desc"; // Remove the element
+      } else if (
+        sortOrder === "asc" &&
+        sortFields[existingSortFieldIndex].order === "desc"
+      ) {
+        updatedSortFields[existingSortFieldIndex].order = "asc"; // Remove the element
+      }
+
+      setSortFields(updatedSortFields, () => {
+        // Call fetchDataForPage after updating sortFields
+        fetchDataForPage(page, updatedSortFields);
+      });
+    } else {
+      // If the field is not in sortFields, add it
+      const updatedSortFields = [
+        ...sortFields,
+        { name: fieldName, order: sortOrder },
+      ];
+      setSortFields(updatedSortFields, () => {
+        // Call fetchDataForPage after updating sortFields
+        fetchDataForPage(page, updatedSortFields);
+      });
+    }
+  };
+
+  // console.log(sortFields);
+
+  useEffect(() => {
+    // Fetch data from MongoDB Atlas when the page or sortFields change
+    fetchDataForPage(page, sortFields);
+  }, [page, sortFields, fetchDataForPage]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage); // Update the page state with the new page value
+    const tableContainer = document.getElementById("TableContainer"); // Use the ID "Table"
+    if (tableContainer) {
+      tableContainer.scrollTo({ behavior: "smooth", top: 0 });
+    }
+  };
+
   // Calculation of table height
   const [tableContainerHeight, setTableContainerHeight] = useState("75px");
 
@@ -199,7 +306,6 @@ function Table({ data, page, onPageChange, loading }) {
 
   // Rendering the table
   const columns = Object.keys(data[0] || {});
-  console.log(columns);
   return (
     <div>
       <TableContainer
@@ -210,7 +316,33 @@ function Table({ data, page, onPageChange, loading }) {
           <thead>
             <TableRow>
               {columns.map((column) => (
-                <TableHeader key={column}>{column}</TableHeader>
+                <TableHeader key={column}>
+                  <HeaderTextContainer>
+                    <HeaderText>
+                      {column === "BASE SCORE (TABLE)"
+                        ? "MAX BASE SCORE"
+                        : column}
+                    </HeaderText>
+                    <SortContainer>
+                      <SortButtonImg
+                        src={SortAsc}
+                        onClick={() => handleSortClick(column, "asc")}
+                        active={sortFields.some(
+                          (field) =>
+                            column === field.name && field.order === "asc"
+                        )}
+                      />
+                      <SortButtonImg
+                        src={SortDesc}
+                        onClick={() => handleSortClick(column, "desc")}
+                        active={sortFields.some(
+                          (field) =>
+                            column === field.name && field.order === "desc"
+                        )}
+                      />
+                    </SortContainer>
+                  </HeaderTextContainer>
+                </TableHeader>
               ))}
             </TableRow>
           </thead>
@@ -224,7 +356,9 @@ function Table({ data, page, onPageChange, loading }) {
                 <TableRow key={index}>
                   {columns.map((column) => (
                     <TableCell key={column}>
-                      {Array.isArray(item[column])
+                      {column === "BASE SCORE (TABLE)"
+                        ? Math.max(item[column]["Base Score"])
+                        : Array.isArray(item[column])
                         ? item[column].join(", ")
                         : item[column]}
                     </TableCell>
@@ -237,13 +371,13 @@ function Table({ data, page, onPageChange, loading }) {
       </TableContainer>
       <PaginationWrapper id="pagination">
         <PaginationButton
-          onClick={() => onPageChange(page - 1)}
+          onClick={() => handlePageChange(page - 1)}
           disabled={page === 1}
         >
           Prev
         </PaginationButton>
         <PaginationButton
-          onClick={() => onPageChange(page + 1)}
+          onClick={() => handlePageChange(page + 1)}
           disabled={data.length < 50}
         >
           Next
@@ -254,10 +388,11 @@ function Table({ data, page, onPageChange, loading }) {
 }
 
 Table.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.object).isRequired,
-  page: PropTypes.number.isRequired,
-  onPageChange: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired,
+  // data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  // page: PropTypes.number.isRequired,
+  // onPageChange: PropTypes.func.isRequired,
+  // loading: PropTypes.bool.isRequired,
+  url_data_route: PropTypes.string.isRequired,
 };
 
 export default Table;
