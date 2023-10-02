@@ -368,7 +368,7 @@ const deleteAccount = (email) => {
   });
 };
 
-const getData = (page) => {
+const getData = (page, sort) => {
   return new Promise(async (resolve, reject) => {
     try {
       const exploitsCollection = db.collection("Exploits");
@@ -377,7 +377,7 @@ const getData = (page) => {
       const skip = (page - 1) * itemsPerPage;
 
       const projection = {
-        "BASE SCORE (TABLE)": 0,
+        // "BASE SCORE (TABLE)": 0,
         EPSS: 0,
         DESCRIPTION: 0,
         _id: 0, // Exclude _id
@@ -386,6 +386,7 @@ const getData = (page) => {
       const allData = await exploitsCollection
         .find({})
         .project(projection)
+        .sort(sort)
         .skip(skip)
         .limit(itemsPerPage)
         .toArray();
