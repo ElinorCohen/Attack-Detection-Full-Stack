@@ -256,13 +256,9 @@ module.exports.activate = async function (req, res) {
 
 module.exports.searchInTable = async function (req, res) {
   try {
-    const { searchString, sortBy, sortOrder } = req.body;
+    const { searchString, sortOrder } = req.body;
 
-    const result = await allQueries.searchFromTable(
-      searchString,
-      sortBy,
-      sortOrder
-    );
+    const result = await allQueries.searchFromTable(searchString, sortOrder);
 
     if (result === false)
       return res.status(404).send("No results found with this sub string");
@@ -303,5 +299,53 @@ module.exports.getData = async function (req, res) {
   } catch (error) {
     console.log(error);
     return res.status(500).send("Error in back please try again later");
+  }
+};
+
+module.exports.editFirstName = async function (req, res) {
+  try {
+    const { email } = req.user;
+    const { newName } = req.body;
+    await allQueries.edit(email, "firstName", newName);
+    return res.status(200).send("Name changed successfully");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error in server please try again later");
+  }
+};
+
+module.exports.editLastName = async function (req, res) {
+  try {
+    const { email } = req.user;
+    const { newLastName } = req.body;
+    await allQueries.edit(email, "lastName", newLastName);
+    return res.status(200).send("Last name changed successfully");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error in server please try again later");
+  }
+};
+
+module.exports.editCountry = async function (req, res) {
+  try {
+    const { email } = req.user;
+    const { newCountry } = req.body;
+    await allQueries.edit(email, "country", newCountry);
+    return res.status(200).send("Country name changed successfully");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error in server please try again later");
+  }
+};
+
+module.exports.editStatus = async function (req, res) {
+  try {
+    const { email } = req.user;
+    const { newStatus } = req.body;
+    await allQueries.edit(email, "status", newStatus);
+    return res.status(200).send("Status changed successfully");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error in server please try again later");
   }
 };

@@ -1,7 +1,5 @@
 const db = require("./Connection");
 const config = require("../../config.json");
-const mongoose = require("mongoose");
-const { link } = require("fs");
 
 //Checking if the user exists in the database by his email
 const checkUserExists = async (email) => {
@@ -11,6 +9,37 @@ const checkUserExists = async (email) => {
       if (err) return reject(err);
       if (!user) return resolve(false);
       return resolve(true);
+    });
+  });
+};
+
+const edit = async (email, field, newValue) => {
+  return new Promise((resolve, reject) => {
+    const userCollection = db.collection("Users");
+    userCollection.findOne({ email }, (err, user) => {
+      if (err) return reject(err);
+
+      user[field] = newValue;
+
+      userCollection.updateOne(
+        { email },
+        { $set: { [field]: newValue } },
+        (err) => {
+          if (err) return reject(err);
+          return resolve();
+        }
+      );
+    });
+  });
+};
+
+const findUSer = async (email) => {
+  return new Promise(async (resolve, reject) => {
+    const userCollection = db.collection("Users");
+    userCollection.findOne({ email }, (err, user) => {
+      if (err) return reject(err);
+      if (!user) return resolve(false);
+      return resolve(user);
     });
   });
 };
@@ -285,7 +314,7 @@ const activate = (email) => {
   });
 };
 
-const searchFromTable = (searchString, sortBy, sortOrder) => {
+const searchFromTable = (searchString, sortOrder) => {
   return new Promise((resolve, reject) => {
     try {
       const usersCollection = db.collection("Users");
@@ -298,13 +327,10 @@ const searchFromTable = (searchString, sortBy, sortOrder) => {
         ],
       };
 
-      usersCollection
-        .find(query)
-        .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
-        .toArray((err, result) => {
-          if (err) return reject(err);
-          return resolve(result);
-        });
+      usersCollection.find(query).toArray((err, result) => {
+        if (err) return reject(err);
+        return resolve(result);
+      });
     } catch (err) {
       return reject(err);
     }
@@ -392,4 +418,6 @@ module.exports = {
   isActivated,
   deleteAccount,
   getData,
+  edit,
+  findUSer,
 };
