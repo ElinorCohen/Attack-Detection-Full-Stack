@@ -11,6 +11,10 @@ const {
   changeForgottenPassword,
   deleteAccount,
   getData,
+  editFirstName,
+  editLastName,
+  editCountry,
+  editStatus,
 } = require("./service");
 
 //Unprotected routes
@@ -26,5 +30,9 @@ router.post("/changeForgottenPassword", changeForgottenPassword);
 router.get("/activate", activate);
 router.post("/deleteAccount", deleteAccount);
 router.post("/changePassword", changePassword);
+router.post("/editFirstName", editFirstName);
+router.post("/editLastName", editLastName);
+router.post("/editCountry", editCountry);
+router.post("/editStatus", editStatus);
 
 module.exports = router;
