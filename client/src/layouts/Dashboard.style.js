@@ -49,6 +49,7 @@ export const BarWrapper = styled.nav`
   display: flex;
   justify-content: space-between;
   width: 100%;
+  box-shadow: 0px 0px 6px 1px black;
 `;
 
 export const NavItem = styled(NavLink)`
