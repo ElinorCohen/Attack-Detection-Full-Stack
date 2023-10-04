@@ -21,6 +21,7 @@ import AnimatedLoading1 from "../../assets/lotties/loading1.json";
 
 import SortAsc from "../../assets/icons/sort-up-whitesmoke.png";
 import SortDesc from "../../assets/icons/caret-down-whitesmoke.png.png";
+
 // import AnimatedLoading2 from "../../assets/lotties/loading2.json";
 // import AnimatedLoading3 from "../../assets/lotties/loading3.json";
 
@@ -178,23 +179,25 @@ import SortDesc from "../../assets/icons/caret-down-whitesmoke.png.png";
 
 function Table({ url_data_route }) {
   const [data, setData] = useState([]);
-  const [page, setCurrentPage] = useState(1); // Initial page
+  const [page, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [sortFields, setSortFields] = useState([]);
+
+  // const total = getTotalItemsFromDB("Exploits");
+  // console.log(total);
 
   const fetchDataForPage = useCallback(
     async (page, sortFields) => {
       try {
-        // Build the sorting criteria from sortFields
         let sortCriteria = {};
         if (sortFields) {
           sortCriteria = sortFields.reduce((criteria, field) => {
+            if (field.name === "CATEGORY") field.name = "CategorySort";
             criteria[field.name] = field.order === "asc" ? 1 : -1;
             return criteria;
           }, {});
         }
 
-        // Make the API request with sorting criteria
         const response = await axios.get(
           `http://localhost:8000/api/User/${url_data_route}/${page}`,
           {
@@ -202,7 +205,6 @@ function Table({ url_data_route }) {
           }
         );
 
-        // Update state with the fetched data
         setData(response.data);
         if (response.data.length > 0) setLoading(false);
       } catch (error) {
@@ -212,99 +214,91 @@ function Table({ url_data_route }) {
     [url_data_route]
   );
 
-  // Function to handle button click and update sorting criteria
   const handleSortClick = (fieldName, sortOrder) => {
-    // Check if the field is already in sortFields
+    // Create a map for field name transformations
+    const fieldNameMap = {
+      "BASE SCORE (TABLE)": "MaxBaseScoreSort",
+      CATEGORY: "CategorySort",
+    };
+
+    const mappedFieldName = fieldNameMap[fieldName] || fieldName;
+
     const existingSortFieldIndex = sortFields.findIndex(
-      (field) => field.name === fieldName
+      (field) => field.name === mappedFieldName
     );
 
     if (existingSortFieldIndex !== -1) {
-      // If the field is already in sortFields, toggle its sortOrder
       const updatedSortFields = [...sortFields];
+
       if (
         sortOrder === "asc" &&
         sortFields[existingSortFieldIndex].order === "asc"
       ) {
-        updatedSortFields.splice(existingSortFieldIndex, 1); // Remove the element
+        updatedSortFields.splice(existingSortFieldIndex, 1);
       } else if (
         sortOrder === "desc" &&
         sortFields[existingSortFieldIndex].order === "desc"
       ) {
-        updatedSortFields.splice(existingSortFieldIndex, 1); // Remove the element
+        updatedSortFields.splice(existingSortFieldIndex, 1);
       } else if (
         sortOrder === "desc" &&
         sortFields[existingSortFieldIndex].order === "asc"
       ) {
-        updatedSortFields[existingSortFieldIndex].order = "desc"; // Remove the element
+        updatedSortFields[existingSortFieldIndex].order = "desc";
       } else if (
         sortOrder === "asc" &&
         sortFields[existingSortFieldIndex].order === "desc"
       ) {
-        updatedSortFields[existingSortFieldIndex].order = "asc"; // Remove the element
+        updatedSortFields[existingSortFieldIndex].order = "asc";
       }
 
-      setSortFields(updatedSortFields, () => {
-        // Call fetchDataForPage after updating sortFields
-        fetchDataForPage(page, updatedSortFields);
-      });
+      setSortFields(updatedSortFields);
     } else {
-      // If the field is not in sortFields, add it
       const updatedSortFields = [
         ...sortFields,
-        { name: fieldName, order: sortOrder },
+        { name: mappedFieldName, order: sortOrder },
       ];
-      setSortFields(updatedSortFields, () => {
-        // Call fetchDataForPage after updating sortFields
-        fetchDataForPage(page, updatedSortFields);
-      });
+
+      setSortFields(updatedSortFields);
     }
   };
 
-  // console.log(sortFields);
-
   useEffect(() => {
-    // Fetch data from MongoDB Atlas when the page or sortFields change
     fetchDataForPage(page, sortFields);
   }, [page, sortFields, fetchDataForPage]);
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage); // Update the page state with the new page value
-    const tableContainer = document.getElementById("TableContainer"); // Use the ID "Table"
-    if (tableContainer) {
-      tableContainer.scrollTo({ behavior: "smooth", top: 0 });
-    }
-  };
-
-  // Calculation of table height
-  const [tableContainerHeight, setTableContainerHeight] = useState("75px");
-
-  const handleResize = () => {
-    const navBarHeight = document.getElementById("navbar").clientHeight;
-    const paginationHeight = document.getElementById("pagination").clientHeight;
-    const searchHeight = document.getElementById("search").clientHeight;
-    const windowHeight = window.innerHeight;
-
-    const desiredTableContainerHeight =
-      windowHeight - navBarHeight - paginationHeight - searchHeight;
-
-    setTableContainerHeight(`${desiredTableContainerHeight}px`);
-  };
-
   useEffect(() => {
-    // Add event listener to handle window resize
-    window.addEventListener("resize", handleResize);
+    const handleResize = () => {
+      const navBarHeight = document.getElementById("navbar").clientHeight;
+      const paginationHeight =
+        document.getElementById("pagination").clientHeight;
+      const searchHeight = document.getElementById("search").clientHeight;
+      const windowHeight = window.innerHeight;
 
-    // Initial calculation on component mount
+      const desiredTableContainerHeight =
+        windowHeight - navBarHeight - paginationHeight - searchHeight;
+
+      setTableContainerHeight(`${desiredTableContainerHeight}px`);
+    };
+
+    window.addEventListener("resize", handleResize);
     handleResize();
 
-    // Clean up event listener on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  // Rendering the table
+  const [tableContainerHeight, setTableContainerHeight] = useState("75px");
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    const tableContainer = document.getElementById("TableContainer");
+    if (tableContainer) {
+      tableContainer.scrollTo({ behavior: "smooth", top: 0 });
+    }
+  };
+
   const columns = Object.keys(data[0] || {});
   return (
     <div>
@@ -327,18 +321,24 @@ function Table({ url_data_route }) {
                       <SortButtonImg
                         src={SortAsc}
                         onClick={() => handleSortClick(column, "asc")}
-                        active={sortFields.some(
-                          (field) =>
-                            column === field.name && field.order === "asc"
-                        )}
+                        active={sortFields.some((field) => {
+                          if (column === "CATEGORY") column = "CategorySort";
+                          if (column === "BASE SCORE (TABLE)")
+                            column = "MaxBaseScoreSort";
+                          return column === field.name && field.order === "asc";
+                        })}
                       />
                       <SortButtonImg
                         src={SortDesc}
                         onClick={() => handleSortClick(column, "desc")}
-                        active={sortFields.some(
-                          (field) =>
+                        active={sortFields.some((field) => {
+                          if (column === "CATEGORY") column = "CategorySort";
+                          if (column === "BASE SCORE (TABLE)")
+                            column = "MaxBaseScoreSort";
+                          return (
                             column === field.name && field.order === "desc"
-                        )}
+                          );
+                        })}
                       />
                     </SortContainer>
                   </HeaderTextContainer>
@@ -357,7 +357,9 @@ function Table({ url_data_route }) {
                   {columns.map((column) => (
                     <TableCell key={column}>
                       {column === "BASE SCORE (TABLE)"
-                        ? Math.max(item[column]["Base Score"])
+                        ? item[column]["Base Score"].reduce((max, c) =>
+                            c > max ? c : max
+                          )
                         : Array.isArray(item[column])
                         ? item[column].join(", ")
                         : item[column]}
@@ -388,10 +390,6 @@ function Table({ url_data_route }) {
 }
 
 Table.propTypes = {
-  // data: PropTypes.arrayOf(PropTypes.object).isRequired,
-  // page: PropTypes.number.isRequired,
-  // onPageChange: PropTypes.func.isRequired,
-  // loading: PropTypes.bool.isRequired,
   url_data_route: PropTypes.string.isRequired,
 };
 

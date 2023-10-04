@@ -377,7 +377,8 @@ const getData = (page, sort) => {
       const skip = (page - 1) * itemsPerPage;
 
       const projection = {
-        // "BASE SCORE (TABLE)": 0,
+        MaxBaseScoreSort: 0,
+        CategorySort: 0,
         EPSS: 0,
         DESCRIPTION: 0,
         _id: 0, // Exclude _id
