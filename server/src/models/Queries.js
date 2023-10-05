@@ -400,6 +400,18 @@ const getData = (page, sort) => {
   });
 };
 
+const getDataLength = () => {
+  return new Promise((resolve, reject) => {
+    const exploitsCollection = db.collection("Exploits");
+
+    exploitsCollection.countDocuments({}, (error, count) => {
+      if (error) return reject(error);
+
+      return resolve(count);
+    });
+  });
+};
+
 module.exports = {
   checkUserExists,
   insertUser,
@@ -422,4 +434,5 @@ module.exports = {
   getData,
   edit,
   findUSer,
+  getDataLength,
 };
