@@ -23,7 +23,7 @@ router.post("/login", login);
 router.post("/forgotPassword", forgotPassword);
 router.post("/register", register);
 router.get("/getData/:page", getData);
-router.get("/getDataLength", getDataLength);
+router.get("/getDataLength/:collectionName", getDataLength);
 
 //Protected routes
 router.use(verifyToken);

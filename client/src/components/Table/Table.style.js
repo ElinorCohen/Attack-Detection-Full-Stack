@@ -71,22 +71,36 @@ export const TableCell = styled.td`
 export const PaginationWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
+  flex: 1;
   align-items: center;
   padding: 12px;
   padding-right: 8px;
-  /* position: fixed; */
-  /* width: 100%; */
-  /* overflow: hidden; */
 `;
 
 export const PaginationButton = styled.button`
   background-color: transparent;
   border: none;
   margin: 2px;
+
   &:hover {
     text-decoration: underline;
     cursor: pointer;
   }
+`;
+
+export const PaginationButtonImage = styled.img`
+  height: 10px;
+  width: 10px;
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+export const ThreeDotsImg = styled.img`
+  height: 18px;
+  width: 20px;
+  padding-inline: 5px;
+  padding-top: 10px;
 `;
 
 export const PageNumber = styled(PaginationButton)`
@@ -96,7 +110,7 @@ export const PageNumber = styled(PaginationButton)`
   border-radius: 4px;
   background-color: #f3ecec;
   border-radius: 3px;
-  width: 32px;
+  width: 40px;
   height: 32px;
   &:hover {
     text-decoration: none;
@@ -128,11 +142,6 @@ export const SortButtonImg = styled.img`
   &:hover {
     cursor: pointer;
   }
-
-  /* &.active {
-    width: 25px;
-    height: 25px;
-  } */
 `;
 
 export const HeaderTextContainer = styled.div`
@@ -148,4 +157,35 @@ export const SortContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2px;
+`;
+
+export const GoToPageWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  flex: 1;
+  align-items: center;
+  padding-left: 15px;
+`;
+
+export const GoToPageInput = styled.input`
+  height: 30px;
+  width: 70px;
+  padding-left: 8px;
+  font-size: 0.9rem;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    height: 33px;
+    padding-inline: 5px;
+    opacity: 1;
+  }
+`;
+
+export const GoToPageButton = styled.button`
+  height: 36px;
+  /* padding: 10px; */
+  font-size: 0.9rem;
+`;
+
+export const BottomTableWrapper = styled.div`
+  display: flex;
 `;
