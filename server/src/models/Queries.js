@@ -368,13 +368,13 @@ const deleteAccount = (email) => {
   });
 };
 
-const getData = (page, sort) => {
+const getData = (page, sort, itemsPerPage) => {
   return new Promise(async (resolve, reject) => {
     try {
       const exploitsCollection = db.collection("Exploits");
 
-      const itemsPerPage = 50;
-      const skip = (page - 1) * itemsPerPage;
+      // const itemsPerPage = 50;
+      const skip = (page - 1) * parseInt(itemsPerPage);
 
       const projection = {
         MaxBaseScoreSort: 0,
@@ -389,7 +389,7 @@ const getData = (page, sort) => {
         .project(projection)
         .sort(sort)
         .skip(skip)
-        .limit(itemsPerPage)
+        .limit(parseInt(itemsPerPage))
         .toArray();
 
       resolve(allData);
@@ -400,9 +400,9 @@ const getData = (page, sort) => {
   });
 };
 
-const getDataLength = () => {
+const getDataLength = (collectionName) => {
   return new Promise((resolve, reject) => {
-    const exploitsCollection = db.collection("Exploits");
+    const exploitsCollection = db.collection(collectionName);
 
     exploitsCollection.countDocuments({}, (error, count) => {
       if (error) return reject(error);

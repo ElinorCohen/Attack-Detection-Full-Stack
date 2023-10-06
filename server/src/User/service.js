@@ -287,8 +287,8 @@ module.exports.deleteAccount = async function (req, res) {
 module.exports.getData = async function (req, res) {
   try {
     const page = req.params.page;
-    const { sort } = req.query;
-    const data = await allQueries.getData(page, sort);
+    const { sort, itemsPerPage } = req.query;
+    const data = await allQueries.getData(page, sort, itemsPerPage);
     if (!data) return res.status(400).send("Error data is missing");
     return res.status(200).send(data);
   } catch (error) {
@@ -347,7 +347,8 @@ module.exports.editStatus = async function (req, res) {
 
 module.exports.getDataLength = async function (req, res) {
   try {
-    const dataLength = await allQueries.getDataLength();
+    const collectionName = req.params.collectionName;
+    const dataLength = await allQueries.getDataLength(collectionName);
     if (!dataLength) return res.status(400).send("No data found");
     res.status(200).send(dataLength.toString());
   } catch (error) {
