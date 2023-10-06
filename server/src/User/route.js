@@ -15,6 +15,7 @@ const {
   editLastName,
   editCountry,
   editStatus,
+  getDataLength,
 } = require("./service");
 
 //Unprotected routes
@@ -22,6 +23,7 @@ router.post("/login", login);
 router.post("/forgotPassword", forgotPassword);
 router.post("/register", register);
 router.get("/getData/:page", getData);
+router.get("/getDataLength", getDataLength);
 
 //Protected routes
 router.use(verifyToken);

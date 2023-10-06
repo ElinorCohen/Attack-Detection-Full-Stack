@@ -344,3 +344,14 @@ module.exports.editStatus = async function (req, res) {
     return res.status(500).send("Error in server please try again later");
   }
 };
+
+module.exports.getDataLength = async function (req, res) {
+  try {
+    const dataLength = await allQueries.getDataLength();
+    if (!dataLength) return res.status(400).send("No data found");
+    res.status(200).send(dataLength.toString());
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error in server, please try again later");
+  }
+};
