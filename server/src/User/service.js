@@ -286,9 +286,34 @@ module.exports.deleteAccount = async function (req, res) {
 
 module.exports.getData = async function (req, res) {
   try {
-    const page = req.params.page;
-    const { sort, itemsPerPage } = req.query;
-    const data = await allQueries.getData(page, sort, itemsPerPage);
+    const { page } = req.params;
+    const { sort, itemsPerPage, searchText, collectionName } = JSON.parse(
+      req.headers["data-header"]
+    );
+    // const { sort, itemsPerPage, searchText, collectionName } = req.body;
+    const data = await allQueries.getData(
+      page,
+      sort,
+      itemsPerPage,
+      searchText,
+      collectionName
+    );
+    if (!data) return res.status(400).send("Error data is missing");
+    return res.status(200).send(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Error in back please try again later");
+  }
+};
+
+module.exports.getRowData = async function (req, res) {
+  try {
+    const { cve } = req.params;
+    const { collectionName } = JSON.parse(req.headers["data-header"]);
+
+    // console.log(cve);
+
+    const data = await allQueries.getRowData(collectionName, cve);
     if (!data) return res.status(400).send("Error data is missing");
     return res.status(200).send(data);
   } catch (error) {
@@ -342,17 +367,5 @@ module.exports.editStatus = async function (req, res) {
   } catch (error) {
     console.error(error);
     return res.status(500).send("Error in server please try again later");
-  }
-};
-
-module.exports.getDataLength = async function (req, res) {
-  try {
-    const collectionName = req.params.collectionName;
-    const dataLength = await allQueries.getDataLength(collectionName);
-    if (!dataLength) return res.status(400).send("No data found");
-    res.status(200).send(dataLength.toString());
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send("Error in server, please try again later");
   }
 };

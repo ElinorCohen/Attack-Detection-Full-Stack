@@ -11,15 +11,24 @@ import {
   LottieLogo,
   LogoWrapper,
   RegisterField,
+  ShowPassword,
 } from "./Login.style";
 
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import userIcon from "./user.png";
 import pswIcon from "./padlock.png";
 import AnimatedLogo from "../../assets/lotties/EDgL26btNA.json";
+import Show from "../../assets/icons/show.png";
+import Hide from "../../assets/icons/hide.png";
 
 function Login() {
   const navigate = useNavigate();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible((prevIsPasswordVisible) => !prevIsPasswordVisible);
+  };
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -48,14 +57,24 @@ function Login() {
         <Fields>
           <FieldWrapper>
             <Icon src={userIcon} alt="userIcon" />
-            <Input name="Email" type="email" placeholder="Type you email" />
+            <Input
+              name="Email"
+              type="email"
+              placeholder="Type you email"
+              required
+            />
           </FieldWrapper>
           <FieldWrapper>
             <Icon src={pswIcon} alt="pswIcon" />
             <Input
               name="Password"
-              type="password"
+              type={isPasswordVisible ? "text" : "password"}
+              required
               placeholder="Type your password"
+            />
+            <ShowPassword
+              src={isPasswordVisible ? Show : Hide}
+              onClick={togglePasswordVisibility}
             />
           </FieldWrapper>
         </Fields>

@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import Select from "react-select";
 import countryList from "react-select-country-list";
+
 import {
   Wrapper,
   Input,
@@ -13,14 +14,23 @@ import {
   LogoWrapper,
   Title,
   LottieLogo,
+  ShowPassword,
+  ConfirmWrapper,
 } from "./Register.style";
 
 import AnimatedLogo from "../../assets/lotties/EDgL26btNA.json";
+import Show from "../../assets/icons/show.png";
+import Hide from "../../assets/icons/hide.png";
 
 function Register() {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const options = useMemo(() => countryList().getData(), []);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible((prevIsPasswordVisible) => !prevIsPasswordVisible);
+  };
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -51,8 +61,8 @@ function Register() {
       ...provided,
       display: "flex",
       height: "3rem",
-      width: "100%",
-      maxWidth: "30rem",
+      width: "100vw",
+      maxWidth: "13.5rem",
       fontSize: "17px",
       border: "1px solid black",
       borderRadius: "14px",
@@ -64,8 +74,8 @@ function Register() {
       ...provided,
       display: "flex",
       height: "3rem",
-      width: "100%",
-      maxWidth: "30rem",
+      width: "100vw",
+      maxWidth: "13.5rem",
       fontSize: "17px",
       border: "1px solid black",
       borderRadius: "14px",
@@ -81,46 +91,63 @@ function Register() {
       </LogoWrapper>
       <Form onSubmit={handleSubmit}>
         <FieldWrapper>
-          <Input name="first name" type="text" placeholder="* First name" />
+          <Input
+            name="first name"
+            type="text"
+            placeholder="* First name"
+            required
+          />
         </FieldWrapper>
         <FieldWrapper>
-          <Input name="last name" type="text" placeholder="* Last name" />
+          <Input
+            name="last name"
+            type="text"
+            placeholder="* Last name"
+            required
+          />
         </FieldWrapper>
         <FieldWrapper>
-          <Input name="Email" type="email" placeholder="* Email" />
+          <Input name="Email" type="email" placeholder="* Email" required />
         </FieldWrapper>
         <FieldWrapper>
           <Input
             name="Password"
-            type="password"
+            type={isPasswordVisible ? "text" : "password"}
             placeholder="* Password (6 or more characters)"
+            required
+          />
+          <ShowPassword
+            src={isPasswordVisible ? Show : Hide}
+            onClick={togglePasswordVisibility}
           />
         </FieldWrapper>
         <AlignSelections>
-          <FieldWrapper>
-            <Select
-              options={statusOptions}
-              value={selectedStatus}
-              onChange={handleStatusChange}
-              placeholder="* Status"
-              styles={selectStylesForOptions}
-            />
-          </FieldWrapper>
-          <FieldWrapper>
-            <Select
-              options={options}
-              value={selectedCountry}
-              onChange={handleCountryChange}
-              placeholder="* Country"
-              styles={selectStylesForCountry}
-            />
-          </FieldWrapper>
+          <Select
+            options={statusOptions}
+            value={selectedStatus}
+            onChange={handleStatusChange}
+            placeholder="* Status"
+            required
+            styles={selectStylesForOptions}
+          />
+          <Select
+            options={options}
+            value={selectedCountry}
+            onChange={handleCountryChange}
+            placeholder="* Country"
+            required
+            styles={selectStylesForCountry}
+          />
         </AlignSelections>
-        <RegisterButton type="submit">Register</RegisterButton>
-        <WrapParagraphAndLink>
-          <p>Already on Atackometer? </p>
-          <AlreadyMember to="/login">Login</AlreadyMember>
-        </WrapParagraphAndLink>
+        <ConfirmWrapper>
+          <RegisterButton type="submit">Register</RegisterButton>
+          <WrapParagraphAndLink>
+            <p style={{ fontSize: "1.2rem", margin: "0" }}>
+              Already a member?{" "}
+            </p>
+            <AlreadyMember to="/login">Login</AlreadyMember>
+          </WrapParagraphAndLink>
+        </ConfirmWrapper>
       </Form>
     </Wrapper>
   );

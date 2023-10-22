@@ -5,22 +5,17 @@ import Lottie from "lottie-react";
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  display: flex;
+  height: 100%;
+  width: 100%;
   justify-content: center;
   align-items: center;
 `;
 
 export const Input = styled.input`
-  display: flex;
-  height: 2rem;
-  width: 100vh;
+  flex: 1;
+  padding: 15px;
+  border: none;
   outline: none;
-  padding: 8px;
-  font-size: 17px;
-  border: 1px solid black;
-  border-radius: 14px;
   &::placeholder {
     font-size: 1rem;
   }
@@ -33,7 +28,11 @@ export const AlreadyMember = styled(Link)`
 
 export const FieldWrapper = styled.div`
   display: flex;
-  flex-direction: row;
+  outline: none;
+  padding: 3px;
+  font-size: 17px;
+  border: 1px solid black;
+  border-radius: 15px;
 `;
 
 export const Form = styled.form`
@@ -46,31 +45,35 @@ export const Form = styled.form`
   background-color: white;
   gap: 20px;
   width: 30rem;
-  height: 30.5rem;
+  height: 25.5rem;
 `;
 
 export const RegisterButton = styled.button`
   background-color: #e4e4e4;
+  width: 13.2rem;
   color: black;
   border-radius: 30px;
   font-size: 1.3rem;
-  padding-block: 1rem;
+  /* padding-block: 1rem; */
+  height: 3.7rem;
   font-weight: 600;
   border: none;
   transition: all 200ms linear;
   &:hover {
-    scale: 1.05;
+    scale: 1;
     cursor: pointer;
-    box-shadow: 0px 0px 9px grey;
+    box-shadow: 0px 0px 7px grey;
   }
 `;
 
 export const WrapParagraphAndLink = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
-  gap: 8px;
+  font-size: 1.2rem;
+  gap: 0px;
+  padding-left: 20px;
 `;
 
 export const AlignSelections = styled.div`
@@ -82,19 +85,36 @@ export const AlignSelections = styled.div`
 
 export const Title = styled.h1`
   font-family: "Impact", fantasy;
-  font-size: 6rem;
+  font-size: 4.5rem;
   font-weight: 400;
+  color: #dddada;
 `;
 
 export const LottieLogo = styled(Lottie)`
   animation-duration: 0.001;
-  height: 9rem;
-  width: 9rem;
-  padding-top: 77px;
+  height: 7rem;
+  width: 7rem;
+  padding-top: 55px;
   padding-right: 10px;
 `;
 
 export const LogoWrapper = styled.div`
   display: flex;
   padding: 0;
+`;
+
+export const ShowPassword = styled.img`
+  height: 1.3rem;
+  width: 1.3rem;
+  padding-top: 12px;
+  padding-right: 10px;
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+export const ConfirmWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 60px;
 `;
