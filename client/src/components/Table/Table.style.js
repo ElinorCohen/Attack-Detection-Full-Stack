@@ -37,7 +37,7 @@ export const TableHeader = styled.th`
   font-weight: bold;
   position: sticky;
   top: 0;
-  z-index: 0;
+  z-index: 1000;
   letter-spacing: 1px;
   table-layout: auto;
   border-collapse: collapse;
@@ -188,4 +188,62 @@ export const GoToPageButton = styled.button`
 
 export const BottomTableWrapper = styled.div`
   display: flex;
+`;
+
+////////SearchDesign//////////
+
+export const SearchWrapper = styled.div`
+  padding-bottom: 17px;
+  padding-top: 17px;
+  padding-left: 17px;
+`;
+
+export const SearchBar = styled.form`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #ffffffc2;
+  cursor: auto;
+  width: 20rem;
+  padding: 1rem;
+  height: 0.5rem;
+  border-radius: 10rem;
+  transition: width 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
+`;
+
+export const SearchInput = styled.input`
+  font-size: 16px;
+  line-height: 1;
+  background-color: transparent;
+  width: 100%;
+  margin-left: 1rem;
+  border: none;
+  color: black;
+  transition: margin 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  outline: none;
+  &::placeholder {
+    color: black;
+    opacity: 0.7;
+  }
+`;
+
+export const SearchButton = styled.button`
+  line-height: 1;
+  pointer-events: auto;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: white;
+`;
+
+export const ClearSearch = styled.img`
+  height: 0.9rem;
+  width: 0.9rem;
+  &:hover {
+    cursor: pointer;
+    opacity: 0.7;
+  }
 `;

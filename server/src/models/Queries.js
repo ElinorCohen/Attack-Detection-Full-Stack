@@ -368,12 +368,11 @@ const deleteAccount = (email) => {
   });
 };
 
-const getData = (page, sort, itemsPerPage) => {
+const getData = (page, sort, itemsPerPage, searchText, collectionName) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const exploitsCollection = db.collection("Exploits");
+      const exploitsCollection = db.collection(`${collectionName}`);
 
-      // const itemsPerPage = 50;
       const skip = (page - 1) * parseInt(itemsPerPage);
 
       const projection = {
@@ -384,15 +383,48 @@ const getData = (page, sort, itemsPerPage) => {
         _id: 0, // Exclude _id
       };
 
+      let searchQuery = {};
+
+      if (searchText) {
+        searchQuery = {
+          $or: [
+            { CVE: { $regex: `${searchText}`, $options: "i" } }, // Case-insensitive search
+            { PUBLISHED: { $regex: `${searchText}`, $options: "i" } },
+            { UPDATED: { $regex: `${searchText}`, $options: "i" } },
+            { CATEGORY: { $regex: `${searchText}`, $options: "i" } },
+            { MaxBaseScoreSort: { $regex: `${searchText}`, $options: "i" } },
+          ],
+        };
+      }
+
+      // Check if a sort field is specified and create the index
+      if (sort) {
+        const indexField = Object.keys(sort)[0]; // Get the field to be indexed
+        const indexDirection = parseInt(sort[indexField]); // Get the sort direction (1 or -1)
+
+        // Check if indexDirection is a valid number
+        if (!isNaN(indexDirection)) {
+          const indexSpec = {};
+          indexSpec[indexField] = indexDirection; // Create the index specification
+
+          // Create the index
+          await exploitsCollection.createIndex(indexSpec);
+        } else {
+          console.error("Invalid indexDirection:", indexDirection);
+        }
+      }
+
+      const dataSize = await exploitsCollection.countDocuments(searchQuery);
+
       const allData = await exploitsCollection
-        .find({})
+        .find(searchQuery)
         .project(projection)
         .sort(sort)
         .skip(skip)
         .limit(parseInt(itemsPerPage))
         .toArray();
 
-      resolve(allData);
+      resolve({ data: allData, size: dataSize });
     } catch (error) {
       console.error("Error in getData:", error);
       reject(error);
@@ -400,15 +432,33 @@ const getData = (page, sort, itemsPerPage) => {
   });
 };
 
-const getDataLength = (collectionName) => {
-  return new Promise((resolve, reject) => {
-    const exploitsCollection = db.collection(collectionName);
+const getRowData = (collectionName, cveString) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const exploitsCollection = db.collection(`${collectionName}`);
 
-    exploitsCollection.countDocuments({}, (error, count) => {
-      if (error) return reject(error);
+      const projection = {
+        MaxBaseScoreSort: 0,
+        CategorySort: 0,
+        _id: 0, // Exclude _id
+      };
 
-      return resolve(count);
-    });
+      const searchQuery = {
+        $or: [
+          { CVE: { $regex: `${cveString}` } }, // Case-insensitive search
+        ],
+      };
+
+      const rowData = await exploitsCollection
+        .find(searchQuery)
+        .project(projection)
+        .toArray();
+      resolve(rowData);
+      console.log(rowData);
+    } catch (error) {
+      console.error("Error in getData:", error);
+      reject(error);
+    }
   });
 };
 
@@ -434,5 +484,5 @@ module.exports = {
   getData,
   edit,
   findUSer,
-  getDataLength,
+  getRowData,
 };

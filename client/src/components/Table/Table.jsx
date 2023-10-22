@@ -19,6 +19,11 @@ import {
   GoToPageInput,
   GoToPageWrapper,
   BottomTableWrapper,
+  SearchButton,
+  SearchInput,
+  SearchWrapper,
+  SearchBar,
+  ClearSearch,
 } from "./Table.style";
 import PropTypes from "prop-types";
 import { useEffect, useState, useCallback } from "react";
@@ -33,6 +38,10 @@ import Next from "../../assets/icons/right-arrow_white.png";
 import Prev from "../../assets/icons/left-arrow_white.png";
 import ThreeDots from "../../assets/icons/more_white.png";
 
+import searchIcon from "../../assets/icons/find.png";
+import closeIcon from "../../assets/icons/close.png";
+import PopRow from "../PopRow/PopRow";
+
 function Table({ url_data_route, collectionName }) {
   const itemsPerPage = 50;
   const MAX_VISIBLE_PAGES = 3;
@@ -40,24 +49,52 @@ function Table({ url_data_route, collectionName }) {
   const [page, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [sortFields, setSortFields] = useState([]);
+  const [input, setInput] = useState("");
+  const [searchValue, setSearchValue] = useState("");
 
   const [tableContainerHeight, setTableContainerHeight] = useState("75px");
-  const [isDataLengthFetched, setIsDataLengthFetched] = useState(false);
   const [total, setTotal] = useState(itemsPerPage);
 
   const [GoToinputValue, setGoToInputValue] = useState(page);
+  const [selectedRowData, setSelectedRowData] = useState(null);
+  const [isPopupVisible, setPopupVisible] = useState(false);
 
-  const fetchDataLength = useCallback(async () => {
+  const handleRowClick = async (rowData) => {
+    const cveSearch = rowData.CVE;
+
     try {
+      const dataToSend = {
+        collectionName: collectionName,
+      };
+
+      const config = {
+        headers: {
+          "data-header": JSON.stringify(dataToSend),
+        },
+      };
+
       const response = await axios.get(
-        `http://localhost:8000/api/User/getDataLength/${collectionName}`
+        `http://localhost:8000/api/User/getRowData/${cveSearch}`,
+        config
       );
-      setTotal(response.data);
-      setIsDataLengthFetched(true); // Set the flag to true after fetching
+      setSelectedRowData(response.data); // Update selectedRowData with the retrieved data
+      setPopupVisible(true);
     } catch (error) {
-      console.error("Axios request error:", error);
+      console.error("Error fetching data:", error);
     }
-  }, [collectionName]);
+  };
+
+  const handleClosePopRow = () => {
+    setPopupVisible(false);
+    setSelectedRowData(null); // Clear the selected row data
+  };
+
+  const sccrollUp = () => {
+    const tableContainer = document.getElementById("TableContainer");
+    if (tableContainer) {
+      tableContainer.scrollTo({ behavior: "smooth", top: 0 });
+    }
+  };
 
   const fetchDataForPage = useCallback(
     async (page, sortFields) => {
@@ -71,20 +108,33 @@ function Table({ url_data_route, collectionName }) {
           }, {});
         }
 
+        const dataToSend = {
+          sort: sortCriteria,
+          itemsPerPage: itemsPerPage,
+          searchText: input,
+          collectionName: collectionName,
+        };
+
+        const config = {
+          headers: {
+            "data-header": JSON.stringify(dataToSend),
+          },
+        };
+
         const response = await axios.get(
           `http://localhost:8000/api/User/${url_data_route}/${page}`,
-          {
-            params: { sort: sortCriteria, itemsPerPage: itemsPerPage },
-          }
+          config
         );
 
-        setData(response.data);
-        if (response.data.length > 0) setLoading(false);
+        setData(response.data.data);
+        setTotal(response.data.size);
+        console.log(response.data.size);
+        if (response.data.size > 0) setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     },
-    [url_data_route]
+    [url_data_route, input, collectionName]
   );
 
   const handleSortClick = (fieldName, sortOrder) => {
@@ -127,20 +177,14 @@ function Table({ url_data_route, collectionName }) {
 
       setSortFields(updatedSortFields);
     } else {
-      const updatedSortFields = [
-        ...sortFields,
-        { name: mappedFieldName, order: sortOrder },
-      ];
+      const updatedSortFields = [{ name: mappedFieldName, order: sortOrder }];
 
       setSortFields(updatedSortFields);
     }
+    setCurrentPage(1);
+    setGoToInputValue(1);
+    sccrollUp();
   };
-
-  useEffect(() => {
-    if (!isDataLengthFetched) {
-      fetchDataLength();
-    }
-  }, [isDataLengthFetched, fetchDataLength]);
 
   useEffect(() => {
     fetchDataForPage(page, sortFields);
@@ -232,16 +276,66 @@ function Table({ url_data_route, collectionName }) {
       setCurrentPage(parseInt(newPage));
       setGoToInputValue(parseInt(newPage));
     }
-    const tableContainer = document.getElementById("TableContainer");
-    if (tableContainer) {
-      tableContainer.scrollTo({ behavior: "smooth", top: 0 });
-    }
+    sccrollUp();
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    setGoToInputValue(1);
+    setInput(searchValue);
+    sccrollUp();
+  };
+
+  const clearSearch = (e) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    setGoToInputValue(1);
+    setSearchValue("");
+    setInput("");
+    sccrollUp();
+  };
+
+  const onFormSubmit = (e) => {
+    e.preventDefault();
+    console.log(`Form was submited with input: ${input}`);
   };
 
   const columns = Object.keys(data[0] || {});
 
   return (
     <div>
+      {isPopupVisible && (
+        <PopRow rowData={selectedRowData[0]} onClose={handleClosePopRow} />
+      )}
+      <SearchWrapper id="search">
+        <SearchBar onSubmit={onFormSubmit}>
+          <SearchButton type="submit" onClick={handleSearch}>
+            <img
+              src={searchIcon}
+              style={{
+                height: "18px",
+                width: "18px",
+                paddingLeft: "3px",
+                paddingTop: "3px",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.opacity = 0.7; // Change opacity on hover
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.opacity = 1; // Reset opacity when not hovering
+              }}
+            />
+          </SearchButton>
+          <SearchInput
+            onChange={(e) => {
+              setSearchValue(e.target.value);
+            }}
+            value={searchValue}
+            placeholder="Search..."
+          />
+          <ClearSearch src={closeIcon} onClick={clearSearch} />
+        </SearchBar>
+      </SearchWrapper>
       <TableContainer
         id="TableContainer"
         style={{ height: tableContainerHeight }}
@@ -293,7 +387,18 @@ function Table({ url_data_route, collectionName }) {
               </LoadingWrapper>
             ) : (
               data.map((item, index) => (
-                <TableRow key={index}>
+                <TableRow
+                  key={index}
+                  onClick={() => handleRowClick(item)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = 0.7; // Change opacity on hover
+                    e.currentTarget.style.cursor = "pointer"; // Change cursor to pointer
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = 1; // Reset opacity when not hovering
+                    e.currentTarget.style.cursor = "default"; // Reset cursor to default
+                  }}
+                >
                   {columns.map((column) => (
                     <TableCell key={column}>
                       {column === "BASE SCORE (TABLE)"
@@ -319,13 +424,20 @@ function Table({ url_data_route, collectionName }) {
             max={totalPages}
             min={1}
             onChange={(e) => {
-              setGoToInputValue(e.target.value);
+              const value = parseInt(e.target.value, 10);
+              if (!isNaN(value)) {
+                setGoToInputValue(value);
+              }
             }}
-            placeholder="Go to Page"
+            placeholder="Page"
           />
           <GoToPageButton
             onClick={() => handlePageChange(GoToinputValue)}
-            disabled={GoToinputValue < 1 || GoToinputValue > totalPages}
+            disabled={
+              GoToinputValue < 1 ||
+              GoToinputValue > totalPages ||
+              !Number.isInteger(GoToinputValue)
+            }
           >
             GO
           </GoToPageButton>

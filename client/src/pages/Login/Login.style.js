@@ -99,3 +99,19 @@ export const RegisterField = styled.div`
   font-weight: bold;
   gap: 18px;
 `;
+
+export const ShowPassword = styled.img`
+  /* height: 1.3rem;
+  width: 1.3rem;
+  padding-top: 12px;
+  padding-right: 10px; */
+  padding: 4.5px;
+  height: 18px;
+  width: 18px;
+  border-inline-color: #e4e4e4;
+  padding-right: 5px;
+  border-bottom: 1px solid grey;
+  &:hover {
+    cursor: pointer;
+  }
+`;

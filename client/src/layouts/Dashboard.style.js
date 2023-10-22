@@ -22,7 +22,7 @@ export const HamburgerIconBar = styled.span`
   display: block;
   width: 100%;
   height: 3.5px;
-  background-color: black;
+  background-color: #dddada;
   margin-bottom: 5px;
   border-radius: 3px;
   transition: transform 0.3s ease;
