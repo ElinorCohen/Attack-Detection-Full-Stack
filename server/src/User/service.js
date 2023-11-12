@@ -2,6 +2,8 @@ const allQueries = require("../models/Queries");
 const nodemailer = require("nodemailer");
 const config = require("../../config.json");
 const jwt = require("jsonwebtoken");
+// const Cookie = require("js-cookie");
+const axios = require("axios");
 
 module.exports.changePassword = async function (req, res) {
   try {
@@ -49,6 +51,7 @@ module.exports.forgotPassword = async function (req, res) {
     if (!userExists) return res.status(404).send("Error: User does not exist");
 
     const token = jwt.sign({ email }, process.env.JWT_KEY);
+
     const magicLink = `http://localhost:8000/api/user/changeForgottenPassword?token=${token}`;
 
     const mailOptions = {
@@ -73,7 +76,7 @@ module.exports.forgotPassword = async function (req, res) {
       console.log("Magic link sent:", info.response);
       return res
         .cookie("access_token", token, {
-          httpOnly: true,
+          // httpOnly: true,
         })
         .status(200)
         .send("Please check your email in order to change your password");
@@ -113,6 +116,7 @@ module.exports.changeForgottenPassword = async function (req, res) {
 module.exports.login = async function (req, res) {
   try {
     const { email, password } = req.body;
+    // console.log(email, password);
     const userAuthentication = await allQueries.checkUserExists(email);
 
     if (!userAuthentication)
@@ -139,8 +143,16 @@ module.exports.login = async function (req, res) {
 
     const realPassword = await allQueries.findUserPassword(email);
     const isUserActivated = await allQueries.isActivated(email);
-
-    if (password === realPassword && isUserActivated) {
+    // console.log(
+    //   email,
+    //   password,
+    //   await allQueries.isValidUserPassword(email, password)
+    // );
+    // if (password === realPassword && isUserActivated)
+    if (
+      (await allQueries.isValidUserPassword(email, password)) &&
+      isUserActivated
+    ) {
       await allQueries.resetLogins(email);
       const token = jwt.sign({ email }, process.env.JWT_KEY);
 
@@ -148,10 +160,16 @@ module.exports.login = async function (req, res) {
         .cookie("access_token", token, {
           httpOnly: true,
           maxAge: 1000 * 60 * 60 * 24,
+          secure: false,
         })
         .status(200)
         .send("Login succeeded");
-    } else if (password === realPassword && isUserActivated === false)
+    }
+    //else if (password === realPassword && isUserActivated === false)
+    else if (
+      (await allQueries.isValidUserPassword(email, password)) &&
+      isUserActivated === false
+    )
       return res
         .status(400)
         .send(
@@ -311,8 +329,6 @@ module.exports.getRowData = async function (req, res) {
     const { cve } = req.params;
     const { collectionName } = JSON.parse(req.headers["data-header"]);
 
-    // console.log(cve);
-
     const data = await allQueries.getRowData(collectionName, cve);
     if (!data) return res.status(400).send("Error data is missing");
     return res.status(200).send(data);
@@ -364,6 +380,18 @@ module.exports.editStatus = async function (req, res) {
     const { newStatus } = req.body;
     await allQueries.edit(email, "status", newStatus);
     return res.status(200).send("Status changed successfully");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error in server please try again later");
+  }
+};
+
+module.exports.getUserData = async function (req, res) {
+  try {
+    const { email } = req.user;
+
+    const data = await allQueries.getUserData(email);
+    return res.status(200).send(data);
   } catch (error) {
     console.error(error);
     return res.status(500).send("Error in server please try again later");

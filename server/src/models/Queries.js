@@ -3,9 +3,14 @@ const config = require("../../config.json");
 
 //Checking if the user exists in the database by his email
 const checkUserExists = async (email) => {
+  try {
+    email = JSON.parse(email);
+  } catch {}
+  // console.log({ email });
   return new Promise(async (resolve, reject) => {
     const userCollection = db.collection("Users");
     userCollection.findOne({ email }, (err, user) => {
+      // console.log(user, err);
       if (err) return reject(err);
       if (!user) return resolve(false);
       return resolve(true);
@@ -30,6 +35,25 @@ const edit = async (email, field, newValue) => {
         }
       );
     });
+  });
+};
+
+const getUserData = async (email) => {
+  return new Promise(async (resolve, reject) => {
+    const userCollection = db.collection("Users");
+    // const projection = {
+    //   password: 0,
+    //   activated: 0,
+    //   logins: 0,
+    //   lastTimeLogin: 0,
+    //   _id: 0, // Exclude _id
+    // };
+    try {
+      const data = await userCollection.findOne({ email });
+      resolve(data);
+    } catch (err) {
+      return reject(err);
+    }
   });
 };
 
@@ -208,9 +232,32 @@ const isBlocked = async (email) => {
 const findUserPassword = async (email) => {
   return new Promise(async (resolve, reject) => {
     try {
+      email = JSON.parse(email);
+    } catch {}
+    // console.log({ email });
+    try {
       const user = await db.collection("Users").findOne({ email });
       if (user) return resolve(user.password);
       return resolve(null);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+};
+
+//Finding the real password of the user for auth
+const isValidUserPassword = async (email, password) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      password = JSON.parse(password);
+      if (typeof password === "number") {
+        password = String(password);
+      }
+    } catch {}
+    try {
+      // console.log({ email, password });
+      const user = await db.collection("Users").findOne({ email, password });
+      return resolve(user !== null);
     } catch (error) {
       return reject(error);
     }
@@ -454,7 +501,6 @@ const getRowData = (collectionName, cveString) => {
         .project(projection)
         .toArray();
       resolve(rowData);
-      console.log(rowData);
     } catch (error) {
       console.error("Error in getData:", error);
       reject(error);
@@ -485,4 +531,6 @@ module.exports = {
   edit,
   findUSer,
   getRowData,
+  getUserData,
+  isValidUserPassword,
 };

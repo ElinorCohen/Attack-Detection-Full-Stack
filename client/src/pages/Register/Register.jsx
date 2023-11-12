@@ -21,6 +21,7 @@ import {
 import AnimatedLogo from "../../assets/lotties/EDgL26btNA.json";
 import Show from "../../assets/icons/show.png";
 import Hide from "../../assets/icons/hide.png";
+import axios from "axios";
 
 function Register() {
   const [selectedCountry, setSelectedCountry] = useState(null);
@@ -38,7 +39,27 @@ function Register() {
     const formData = new FormData(target);
     const data = Object.fromEntries(formData.entries());
     data.country = selectedCountry ? selectedCountry.label : "";
+    data.status = selectedStatus ? selectedStatus.label : "";
     console.log(data);
+
+    axios
+      .post("/api/User/register", {
+        password: data.Password,
+        email: data.Email,
+        firstName: data["first name"],
+        lastName: data["last name"],
+        country: data.country,
+        status: data.status,
+      })
+      .then((response) => {
+        console.log(response.data);
+        // const token = response.data.token;
+
+        // localStorage.setItem("token", token);
+      })
+      .catch((error) => {
+        console.error("Register failed:", error);
+      });
   }
 
   const statusOptions = [
@@ -107,7 +128,12 @@ function Register() {
           />
         </FieldWrapper>
         <FieldWrapper>
-          <Input name="Email" type="email" placeholder="* Email" required />
+          <Input
+            name="Email"
+            type="email"
+            placeholder="* Email"
+            required
+          />
         </FieldWrapper>
         <FieldWrapper>
           <Input
