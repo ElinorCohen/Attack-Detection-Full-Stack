@@ -22,10 +22,11 @@ export const Form = styled.form`
 `;
 
 export const SubmitButton = styled.button`
+  width: 130px;
   background-color: #e4e4e4;
   color: black;
   border-radius: 30px;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   padding-block: 1rem;
   font-weight: 600;
   border: none;
@@ -94,10 +95,9 @@ export const LogoWrapper = styled.div`
 
 export const RegisterField = styled.div`
   display: flex;
-  flex-direction: column;
   text-align: center;
   font-weight: bold;
-  gap: 18px;
+  /* gap: 18px; */
 `;
 
 export const ShowPassword = styled.img`
@@ -114,4 +114,16 @@ export const ShowPassword = styled.img`
   &:hover {
     cursor: pointer;
   }
+`;
+
+export const ErrorText = styled.p`
+  color: red;
+  margin-bottom: 20px;
+`;
+
+export const ButtonsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
 `;

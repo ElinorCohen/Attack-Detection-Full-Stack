@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   PopRowWrapper,
   CloseButton,
@@ -9,6 +9,8 @@ import {
   TableRow,
   FieldWrapper,
   HeadWrapper,
+  TableContainer,
+  CloseButtonWrapper,
 } from "./PopRow.style";
 import PropTypes from "prop-types";
 function PopRow({ rowData, onClose }) {
@@ -34,39 +36,77 @@ function PopRow({ rowData, onClose }) {
   return (
     <PopRowWrapper>
       <PopRowContent ref={popRowRef}>
-        <CloseButton onClick={onClose}>&times;</CloseButton>
+        <CloseButtonWrapper>
+          <CloseButton onClick={onClose}>&times;</CloseButton>
+        </CloseButtonWrapper>
         <h1>{rowData.CVE}</h1>
-        <FieldWrapper>
-          <p>
-            <HeadWrapper>
-              <strong>Description: </strong>
-            </HeadWrapper>
-            {rowData.DESCRIPTION}
-          </p>
-        </FieldWrapper>
-        <p>
-          <strong>Category: </strong>
-          {rowData.CATEGORY.join(", ")}
-        </p>
-        <p>
-          <strong>Published: </strong>
-          {rowData.PUBLISHED}
-          <span style={{ margin: "0 20px" }}></span>
-          <strong>Updated: </strong>
-          {rowData.UPDATED}
-        </p>
+        <HeadWrapper>
+          <strong>Description: </strong>
+          <FieldWrapper>
+            <p
+              style={{
+                paddingInline: "15px",
+                margin: "0",
+                paddingBlock: "10px",
+              }}
+            >
+              {rowData.DESCRIPTION}
+            </p>
 
-        <strong>Epss: </strong>
-        {
-          <StyledTable
-          // style={{
-          //   width: "100%",
-          //   borderSpacing: "1.8px",
-          //   textAlign: "left",
-          //   backgroundColor: "gray",
-          //   borderColor: "whitesmoke",
-          // }}
-          >
+            <p
+              style={{
+                paddingInline: "15px",
+                margin: "0",
+                paddingBlock: "10px",
+              }}
+            >
+              <strong>Category: </strong>
+              {rowData.CATEGORY.join(", ")}
+            </p>
+            <p
+              style={{
+                paddingInline: "15px",
+                margin: "0",
+                paddingBlock: "10px",
+              }}
+            >
+              <strong>Published: </strong>
+              {rowData.PUBLISHED}
+              <span style={{ margin: "0 20px" }}></span>
+              <strong>Updated: </strong>
+              {rowData.UPDATED}
+            </p>
+          </FieldWrapper>
+        </HeadWrapper>
+
+        <HeadWrapper>
+          <strong>
+            Epss (Exploit Prediction Scoring System) as of{" "}
+            {rowData.EPSS["Date:"]}:
+          </strong>
+          <FieldWrapper>
+            {Object.entries(rowData.EPSS).map(([key, value]) => {
+              return key !== "Date:" ? (
+                <p
+                  key={key}
+                  style={{
+                    paddingInline: "15px",
+                    margin: "0",
+                    paddingBlock: "10px",
+                  }}
+                >
+                  <strong>{key} </strong>
+                  {value}
+                </p>
+              ) : (
+                <React.Fragment key={key} />
+              );
+            })}
+          </FieldWrapper>
+        </HeadWrapper>
+
+        {/* {
+          <StyledTable>
             <tbody>
               {Object.entries(rowData.EPSS).map(([subKey, subValue]) => (
                 <TableRow key={subKey}>
@@ -78,36 +118,41 @@ function PopRow({ rowData, onClose }) {
               ))}
             </tbody>
           </StyledTable>
-        }
+        } */}
 
-        <strong>Base score: </strong>
         {
-          <StyledTable>
-            <thead>
-              <TableRow>
-                {Object.keys(rowData["BASE SCORE (TABLE)"]).map(
-                  (columnName) => (
-                    <TableHeader key={columnName}>{columnName}</TableHeader>
+          <TableContainer>
+            <StyledTable>
+              <thead>
+                <TableRow>
+                  {Object.keys(rowData["BASE SCORE (TABLE)"]).map(
+                    (columnName) => (
+                      <TableHeader key={columnName}>{columnName}</TableHeader>
+                    )
+                  )}
+                </TableRow>
+              </thead>
+              <tbody>
+                {rowData["BASE SCORE (TABLE)"]["Base Score"].map(
+                  (_, rowIndex) => (
+                    <TableRow key={rowIndex}>
+                      {Object.keys(rowData["BASE SCORE (TABLE)"]).map(
+                        (columnName) => (
+                          <TableCell key={columnName}>
+                            {
+                              rowData["BASE SCORE (TABLE)"][columnName][
+                                rowIndex
+                              ]
+                            }
+                          </TableCell>
+                        )
+                      )}
+                    </TableRow>
                   )
                 )}
-              </TableRow>
-            </thead>
-            <tbody>
-              {rowData["BASE SCORE (TABLE)"]["Base Score"].map(
-                (_, rowIndex) => (
-                  <TableRow key={rowIndex}>
-                    {Object.keys(rowData["BASE SCORE (TABLE)"]).map(
-                      (columnName) => (
-                        <TableCell key={columnName}>
-                          {rowData["BASE SCORE (TABLE)"][columnName][rowIndex]}
-                        </TableCell>
-                      )
-                    )}
-                  </TableRow>
-                )
-              )}
-            </tbody>
-          </StyledTable>
+              </tbody>
+            </StyledTable>
+          </TableContainer>
         }
       </PopRowContent>
     </PopRowWrapper>

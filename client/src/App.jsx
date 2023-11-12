@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import Login from "./pages/Login/Login";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
@@ -8,15 +12,22 @@ import Profile from "./pages/UserProfile/UserProfile";
 import History from "./pages/AttackHistory/AttackHistory";
 import About from "./pages/About/About";
 import Dashboard from "./layouts/Dashboard";
+// import AuthContextProvider from "./contexts/AuthContext";
 
+// import axios from "axios";
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    // <AuthContextProvider>
+    <RouterProvider router={router} />
+    // </AuthContextProvider>
+  );
 }
 
 export default App;
 
 const router = createBrowserRouter([
+  { index: true, element: <Navigate to="/Login" /> },
   { path: "Login", element: <Login /> },
   { path: "ForgotPassword", element: <ForgotPassword /> },
   { path: "ChangePassword", element: <ChangePassword /> },

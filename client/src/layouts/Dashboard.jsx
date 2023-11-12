@@ -1,5 +1,9 @@
-import { Outlet } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import {
+  useState,
+  useEffect,
+  //  useContext
+} from "react";
 
 import {
   BarWrapper,
@@ -22,11 +26,16 @@ import HomePicActive from "../assets/icons/homeActive.png";
 import ProfilePicActive from "../assets/icons/userActive.png";
 import HistoryPicActive from "../assets/icons/historyActive.png";
 import AboutPicActive from "../assets/icons/aboutActive.png";
+// import { AuthContext } from "../contexts/AuthContext";
 
 function Dashboard() {
   const [open, setOpen] = useState(false);
   const [showHamburger, setShowHamburger] = useState(true);
-  const [selectedNavItem, setSelectedNavItem] = useState("home");
+  // const [selectedNavItem, setSelectedNavItem] = useState("home");
+  const location = useLocation();
+  const selectedNavItem = location.pathname.substring(1);
+  // const { email } = useContext(AuthContext);
+  // console.log(email);
 
   const toggleMenu = () => {
     setOpen(!open);
@@ -52,9 +61,9 @@ function Dashboard() {
     }
   }, [showHamburger]);
 
-  const handleNavItemClick = (navItem) => {
-    setSelectedNavItem(navItem);
-  };
+  // const handleNavItemClick = (navItem) => {
+  //   setSelectedNavItem(navItem);
+  // };
 
   return (
     <div style={{ height: "100%" }}>
@@ -72,13 +81,13 @@ function Dashboard() {
           </HamburgerIcon>
         )}
         <NavMenu open={open}>
-          <NavItem to="home" onClick={() => handleNavItemClick("home")}>
+          <NavItem to="home">
             <NavIconImg
               src={selectedNavItem === "home" ? HomePicActive : HomePic}
             />
             Home
           </NavItem>
-          <NavItem to="profile" onClick={() => handleNavItemClick("profile")}>
+          <NavItem to="profile">
             <NavIconImg
               src={
                 selectedNavItem === "profile" ? ProfilePicActive : ProfilePic
@@ -86,7 +95,7 @@ function Dashboard() {
             />
             Profile
           </NavItem>
-          <NavItem to="history" onClick={() => handleNavItemClick("history")}>
+          <NavItem to="history">
             <NavIconImg
               src={
                 selectedNavItem === "history" ? HistoryPicActive : HistoryPic
@@ -94,7 +103,7 @@ function Dashboard() {
             />
             History
           </NavItem>
-          <NavItem to="about" onClick={() => handleNavItemClick("about")}>
+          <NavItem to="about">
             <NavIconImg
               src={selectedNavItem === "about" ? AboutPicActive : AboutPic}
             />

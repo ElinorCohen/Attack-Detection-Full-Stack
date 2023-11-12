@@ -10,7 +10,7 @@ require("./models/Connection");
 const app = express();
 
 // view engine setup
-app.use(cors());
+app.use(cors({ "*": true, credentials: true }));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

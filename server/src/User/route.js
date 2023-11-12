@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const cookieParser = require("cookie-parser");
+
 const { verifyToken } = require("./auth");
 const {
   login,
@@ -16,6 +18,7 @@ const {
   editCountry,
   editStatus,
   getRowData,
+  getUserData,
 } = require("./service");
 
 //Unprotected routes
@@ -27,9 +30,9 @@ router.get("/getRowData/:cve", getRowData);
 
 //Protected routes
 router.use(verifyToken);
-router.post("/searchInTable", searchInTable);
-router.post("/changeForgottenPassword", changeForgottenPassword);
 router.get("/activate", activate);
+router.get("/getUserData", getUserData);
+router.post("/changeForgottenPassword", changeForgottenPassword);
 router.post("/deleteAccount", deleteAccount);
 router.post("/changePassword", changePassword);
 router.post("/editFirstName", editFirstName);
