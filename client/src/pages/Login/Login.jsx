@@ -29,6 +29,7 @@ import AnimatedLogo from "../../assets/lotties/EDgL26btNA.json";
 import Show from "../../assets/icons/show.png";
 import Hide from "../../assets/icons/hide.png";
 import axios from "axios";
+import AlertComponent from "../../components/Alert/AlertComponent ";
 // import { AuthContext } from "../../contexts/AuthContext";
 // import { toast } from "react-toastify";
 
@@ -36,6 +37,14 @@ function Login() {
   const navigate = useNavigate();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [errorMessage, setError] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [message, setMessage] = useState("");
+  // const { email } = useContext(AuthContext);
+  // console.log(email);
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+    navigateHomePage();
+  };
   // const { saveEmail } = useContext(AuthContext);
 
   const togglePasswordVisibility = () => {
@@ -56,7 +65,7 @@ function Login() {
     const formData = new FormData(target);
     const data = Object.fromEntries(formData.entries());
 
-    // console.log(data);
+    console.log(data);
     try {
       const response = await axios.post(
         "/api/User/login",
@@ -67,31 +76,28 @@ function Login() {
         { withCredentials: true }
       );
       console.log(response);
-      // saveEmail(data.Email);
-      navigateHomePage();
+      if (response.data.detectedAttack !== "None") {
+        setShowAlert(true);
+        setMessage(`The detected attack was ${response.data.detectedAttack}`);
+      } else {
+        navigateHomePage();
+      }
     } catch (error) {
       console.error("Login failed:", error);
       setError("Username or password is invalid");
-      // toast.error(error.response.data);
     }
-    //   .then((response) => {
-    //     console.log(response);
-    //     navigateHomePage();
-    //   })
-    //   .catch((error) => {
-    //     console.error("Login failed:", error);
-    //     setError("Username or password is invalid");
-    //     // toast.error(error.response.data);
-    //   });
-    // console.log(GetCookie("access_token"));
   };
   return (
     <Wrapper>
+      {showAlert && (
+        <AlertComponent message={message} onClose={handleCloseAlert} />
+      )}
       <LogoWrapper>
         <Title>ATTACK</Title>
         <LottieLogo animationData={AnimatedLogo} />
         <Title>METER</Title>
       </LogoWrapper>
+
       <Form onSubmit={handleSubmit}>
         <Fields>
           <FieldWrapper>

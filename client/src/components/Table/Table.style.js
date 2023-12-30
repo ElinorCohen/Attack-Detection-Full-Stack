@@ -123,6 +123,13 @@ export const LoadingAnimation = styled(Lottie)`
   animation-duration: 0.01;
   max-height: 17rem;
   width: 17rem;
+  padding-top: 50px;
+`;
+
+export const NotFoundAnimation = styled(Lottie)`
+  animation-duration: 0.01;
+  /* width: 80rem; */
+  height: 35rem;
 `;
 
 export const LoadingWrapper = styled.div`

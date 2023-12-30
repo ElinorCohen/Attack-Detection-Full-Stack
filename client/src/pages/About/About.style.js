@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 export const AboutContainer = styled.div`
   padding-inline: 250px;
+  color: whitesmoke;
   margin: 0 auto;
   overflow: auto;
   position: relative;

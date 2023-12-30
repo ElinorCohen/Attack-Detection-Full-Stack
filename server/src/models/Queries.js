@@ -1,5 +1,10 @@
 const db = require("./Connection");
 const config = require("../../config.json");
+const {
+  isCSRFAttack,
+  isNoSQLInjection,
+  isXSSAttack,
+} = require("../../AttackDetection/functions.js");
 
 //Checking if the user exists in the database by his email
 const checkUserExists = async (email) => {
@@ -11,29 +16,9 @@ const checkUserExists = async (email) => {
     const userCollection = db.collection("Users");
     userCollection.findOne({ email }, (err, user) => {
       // console.log(user, err);
-      if (err) return reject(err);
+      if (err) return reject("User not found, please try again");
       if (!user) return resolve(false);
       return resolve(true);
-    });
-  });
-};
-
-const edit = async (email, field, newValue) => {
-  return new Promise((resolve, reject) => {
-    const userCollection = db.collection("Users");
-    userCollection.findOne({ email }, (err, user) => {
-      if (err) return reject(err);
-
-      user[field] = newValue;
-
-      userCollection.updateOne(
-        { email },
-        { $set: { [field]: newValue } },
-        (err) => {
-          if (err) return reject(err);
-          return resolve();
-        }
-      );
     });
   });
 };
@@ -177,6 +162,9 @@ const deleteOldPasswordHistory = (email) => {
 
 //Getting the time of last time login of the user
 const lastTimeLogin = async (email) => {
+  try {
+    email = JSON.parse(email);
+  } catch {}
   return new Promise(async (resolve, reject) => {
     try {
       const user = await db.collection("Users").findOne({ email });
@@ -253,6 +241,9 @@ const isValidUserPassword = async (email, password) => {
       if (typeof password === "number") {
         password = String(password);
       }
+    } catch {}
+    try {
+      email = JSON.parse(email);
     } catch {}
     try {
       // console.log({ email, password });
@@ -387,11 +378,14 @@ const searchFromTable = (searchString, sortOrder) => {
 const isActivated = (email) => {
   return new Promise((resolve, reject) => {
     try {
+      try {
+        email = JSON.parse(email);
+      } catch {}
+      // console.log({ email });
       const usersCollection = db.collection("Users");
-
       usersCollection.findOne({ email }, (err, user) => {
         if (err) return reject(err);
-
+        // console.log(user);
         if (user?.activated) return resolve(true);
         return resolve(false);
       });
@@ -415,9 +409,49 @@ const deleteAccount = (email) => {
   });
 };
 
-const getData = (page, sort, itemsPerPage, searchText, collectionName) => {
+const insertHistory = async (data) => {
+  return new Promise((resolve, reject) => {
+    const AttacksCollection = db.collection("attackHistory");
+    AttacksCollection.insertOne(data, (err, res) => {
+      if (err) return reject(err);
+      return resolve();
+    });
+  });
+};
+
+const getData = (
+  email,
+  page,
+  sort,
+  itemsPerPage,
+  searchText,
+  collectionName
+) => {
   return new Promise(async (resolve, reject) => {
+    let attack = "None";
     try {
+      if (isCSRFAttack(searchText)) {
+        attack = "CSRF";
+      } else if (isXSSAttack(searchText)) {
+        attack = "XSS";
+      } else if (isNoSQLInjection(searchText)) {
+        attack = "NoSQLInjection";
+      }
+
+      let historyData = {};
+
+      if (attack !== "None") {
+        const date = new Date();
+
+        historyData = {
+          EMAIL: email,
+          TIME: date.toUTCString(),
+          INPUT: searchText,
+          "ATTACK TYPE": attack,
+          "ATTACK WEB LOCATION": "Home page - search",
+        };
+      }
+
       const exploitsCollection = db.collection(`${collectionName}`);
 
       const skip = (page - 1) * parseInt(itemsPerPage);
@@ -433,16 +467,21 @@ const getData = (page, sort, itemsPerPage, searchText, collectionName) => {
       let searchQuery = {};
 
       if (searchText) {
-        searchQuery = {
-          $or: [
-            { CVE: { $regex: `${searchText}`, $options: "i" } }, // Case-insensitive search
-            { PUBLISHED: { $regex: `${searchText}`, $options: "i" } },
-            { UPDATED: { $regex: `${searchText}`, $options: "i" } },
-            { CATEGORY: { $regex: `${searchText}`, $options: "i" } },
-            { MaxBaseScoreSort: { $regex: `${searchText}`, $options: "i" } },
-          ],
-        };
+        try {
+          searchQuery = JSON.parse(searchText);
+        } catch {
+          searchQuery = {
+            $or: [
+              { CVE: { $regex: `${searchText}`, $options: "i" } }, // Case-insensitive search
+              { PUBLISHED: { $regex: `${searchText}`, $options: "i" } },
+              { UPDATED: { $regex: `${searchText}`, $options: "i" } },
+              { CATEGORY: { $regex: `${searchText}`, $options: "i" } },
+              { MaxBaseScoreSort: { $regex: `${searchText}`, $options: "i" } },
+            ],
+          };
+        }
       }
+      // console.log(searchQuery);
 
       // Check if a sort field is specified and create the index
       if (sort) {
@@ -471,7 +510,12 @@ const getData = (page, sort, itemsPerPage, searchText, collectionName) => {
         .limit(parseInt(itemsPerPage))
         .toArray();
 
-      resolve({ data: allData, size: dataSize });
+      resolve({
+        data: allData,
+        size: dataSize,
+        attackDetected: attack,
+        history: historyData,
+      });
     } catch (error) {
       console.error("Error in getData:", error);
       reject(error);
@@ -508,8 +552,215 @@ const getRowData = (collectionName, cveString) => {
   });
 };
 
+const edit = async (email, user) => {
+  return new Promise((resolve, reject) => {
+    let attack = "None";
+    let input = "";
+    let location = "";
+    if (isCSRFAttack(user.firstName)) {
+      attack = "CSRF";
+      input = user.firstName;
+      location = "first name";
+    } else if (isXSSAttack(user.firstName)) {
+      attack = "XSS";
+      input = user.firstName;
+      location = "first name";
+    } else if (isNoSQLInjection(user.firstName)) {
+      attack = "NoSQLInjection";
+      input = user.firstName;
+      location = "first name";
+    }
+
+    if (isCSRFAttack(user.lastName)) {
+      attack = "CSRF";
+      input = user.lastName;
+      location = "last name";
+    } else if (isXSSAttack(user.lastName)) {
+      attack = "XSS";
+      input = user.lastName;
+      location = "last name";
+    } else if (isNoSQLInjection(user.lastName)) {
+      attack = "NoSQLInjection";
+      input = user.lastName;
+      location = "last name";
+    }
+
+    let historyData = {};
+
+    if (attack !== "None") {
+      const date = new Date();
+
+      historyData = {
+        EMAIL: email,
+        TIME: date.toUTCString(),
+        INPUT: input,
+        "ATTACK TYPE": attack,
+        "ATTACK WEB LOCATION": `Profile page - edit ${location}`,
+      };
+    }
+
+    const userCollection = db.collection("Users");
+    userCollection.findOne({ email }, (err, res) => {
+      if (err) return reject(err);
+      // console.log({ email }, user);
+      userCollection.updateOne({ email }, { $set: user }, (err) => {
+        if (err) return reject(err);
+        return resolve({ attackDetected: attack, history: historyData });
+      });
+    });
+  });
+};
+
+const getHistoryData = (
+  email,
+  page,
+  sort,
+  itemsPerPage,
+  searchText,
+  collectionName
+) => {
+  return new Promise(async (resolve, reject) => {
+    let attack = "None";
+    try {
+      if (isCSRFAttack(searchText)) {
+        attack = "CSRF";
+      } else if (isXSSAttack(searchText)) {
+        attack = "XSS";
+      } else if (isNoSQLInjection(searchText)) {
+        attack = "NoSQLInjection";
+      }
+
+      let historyData = {};
+
+      if (attack !== "None") {
+        const date = new Date();
+
+        historyData = {
+          EMAIL: email,
+          TIME: date.toUTCString(),
+          INPUT: searchText,
+          "ATTACK TYPE": attack,
+          "ATTACK WEB LOCATION": "History page - search",
+        };
+      }
+
+      const attacksCollection = db.collection(`${collectionName}`);
+
+      const skip = (page - 1) * parseInt(itemsPerPage);
+
+      const projection = {
+        EMAIL: 0,
+        _id: 0, // Exclude _id
+      };
+
+      let searchQuery = {};
+
+      if (searchText) {
+        searchQuery = {
+          $and: [
+            { EMAIL: { $regex: `^${email}$`, $options: "i" } },
+
+            {
+              $or: [
+                {
+                  TIME: {
+                    $regex: `${searchText}`,
+                    $options: "i",
+                  },
+                }, // Case-insensitive search
+                {
+                  INPUT: {
+                    $regex: `${searchText}`,
+                    $options: "i",
+                  },
+                },
+                {
+                  "ATTACK TYPE": {
+                    $regex: `${searchText}`,
+                    $options: "i",
+                  },
+                },
+                {
+                  "ATTACK WEB LOCATION": {
+                    $regex: `${searchText}`,
+                    $options: "i",
+                  },
+                },
+              ],
+            },
+          ],
+        };
+      } else {
+        searchQuery = { EMAIL: email };
+      }
+
+      // Check if a sort field is specified and create the index
+      if (sort) {
+        const indexField = Object.keys(sort)[0]; // Get the field to be indexed
+        const indexDirection = parseInt(sort[indexField]); // Get the sort direction (1 or -1)
+
+        // Check if indexDirection is a valid number
+        if (!isNaN(indexDirection)) {
+          const indexSpec = {};
+          indexSpec[indexField] = indexDirection; // Create the index specification
+
+          // Create the index
+          await attacksCollection.createIndex(indexSpec);
+        } else {
+          console.error("Invalid indexDirection:", indexDirection);
+        }
+      }
+
+      const dataSize = await attacksCollection.countDocuments(searchQuery);
+
+      const allData = await attacksCollection
+        .find(searchQuery)
+        .project(projection)
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(itemsPerPage))
+        .toArray();
+      resolve({
+        data: allData,
+        size: dataSize,
+        attackDetected: attack,
+        history: historyData,
+      });
+    } catch (error) {
+      console.error("Error in getData:", error);
+      reject(error);
+    }
+  });
+};
+
+const deleteHistoryRow = async (email, data) => {
+  try {
+    const historyCollection = db.collection("attackHistory");
+    const filter = { ...data.body, EMAIL: email };
+    console.log(filter);
+    const result = await historyCollection.deleteOne(filter);
+
+    if (!result) {
+      console.error("deleteOne operation did not return a result:", result);
+      return false;
+    }
+
+    if (result.deletedCount === 1) {
+      console.log("Document deleted successfully:", result);
+      return true;
+    } else {
+      console.warn("Document not found or not deleted:", result);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error in deleteHistoryRow:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   checkUserExists,
+  insertHistory,
   insertUser,
   insertPasswordHistory,
   isMoreThan3Passwords,
@@ -533,4 +784,6 @@ module.exports = {
   getRowData,
   getUserData,
   isValidUserPassword,
+  getHistoryData,
+  deleteHistoryRow,
 };

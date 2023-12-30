@@ -111,7 +111,13 @@ function Dashboard() {
           </NavItem>
         </NavMenu>
       </BarWrapper>
-      <div style={{ filter: showHamburger && open ? "blur(4px)" : "none" }}>
+      <div
+        style={{
+          filter: showHamburger && open ? "blur(4px)" : "none",
+          background:
+            showHamburger && open ? " background: rgba(0, 0, 0, 0.5);" : "none",
+        }}
+      >
         <Outlet />
       </div>
     </div>

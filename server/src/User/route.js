@@ -8,36 +8,34 @@ const {
   register,
   forgotPassword,
   changePassword,
-  searchInTable,
   activate,
   changeForgottenPassword,
   deleteAccount,
   getData,
-  editFirstName,
-  editLastName,
-  editCountry,
-  editStatus,
+  editUser,
   getRowData,
   getUserData,
+  getHistoryData,
+  deleteHistoryRow,
 } = require("./service");
 
 //Unprotected routes
 router.post("/login", login);
 router.post("/forgotPassword", forgotPassword);
 router.post("/register", register);
-router.get("/getData/:page", getData);
+
 router.get("/getRowData/:cve", getRowData);
 
 //Protected routes
 router.use(verifyToken);
+router.get("/getData/:page", getData);
+router.get("/getHistoryData/:page", getHistoryData);
 router.get("/activate", activate);
 router.get("/getUserData", getUserData);
 router.post("/changeForgottenPassword", changeForgottenPassword);
-router.post("/deleteAccount", deleteAccount);
+router.get("/deleteAccount", deleteAccount);
 router.post("/changePassword", changePassword);
-router.post("/editFirstName", editFirstName);
-router.post("/editLastName", editLastName);
-router.post("/editCountry", editCountry);
-router.post("/editStatus", editStatus);
+router.post("/editUser", editUser);
+router.post("/deleteHistoryRow", deleteHistoryRow);
 
 module.exports = router;

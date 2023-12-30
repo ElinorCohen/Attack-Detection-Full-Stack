@@ -3,7 +3,7 @@ import Table from "../../components/Table/Table";
 
 function History() {
   const url_data_route = "getHistoryData";
-  const collectionName = "Users";
+  const collectionName = "attackHistory";
 
   return (
     <>
