@@ -18,16 +18,33 @@ import {
   ConfirmWrapper,
 } from "./Register.style";
 
+import AlertComponent from "../../components/Alert/AlertComponent ";
+
 import AnimatedLogo from "../../assets/lotties/EDgL26btNA.json";
 import Show from "../../assets/icons/show.png";
 import Hide from "../../assets/icons/hide.png";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const options = useMemo(() => countryList().getData(), []);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [message, setMessage] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
+
+  function navigateLogin() {
+    navigate("/login");
+  }
+
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+    alert(responseMessage);
+    navigateLogin();
+  };
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible((prevIsPasswordVisible) => !prevIsPasswordVisible);
@@ -52,13 +69,16 @@ function Register() {
         status: data.status,
       })
       .then((response) => {
-        console.log(response.data);
-        // const token = response.data.token;
-
-        // localStorage.setItem("token", token);
+        if (response.data.detectedAttack !== "None") {
+          setShowAlert(true);
+          setMessage(`The detected attack was ${response.data.detectedAttack}`);
+          setResponseMessage(response.data.message);
+        }
       })
       .catch((error) => {
         console.error("Register failed:", error);
+        target.reset();
+        alert(error.response.data);
       });
   }
 
@@ -104,78 +124,78 @@ function Register() {
   };
 
   return (
-    <Wrapper>
-      <LogoWrapper>
-        <Title>ATTACK</Title>
-        <LottieLogo animationData={AnimatedLogo} />
-        <Title>METER</Title>
-      </LogoWrapper>
-      <Form onSubmit={handleSubmit}>
-        <FieldWrapper>
-          <Input
-            name="first name"
-            type="text"
-            placeholder="* First name"
-            required
-          />
-        </FieldWrapper>
-        <FieldWrapper>
-          <Input
-            name="last name"
-            type="text"
-            placeholder="* Last name"
-            required
-          />
-        </FieldWrapper>
-        <FieldWrapper>
-          <Input
-            name="Email"
-            type="email"
-            placeholder="* Email"
-            required
-          />
-        </FieldWrapper>
-        <FieldWrapper>
-          <Input
-            name="Password"
-            type={isPasswordVisible ? "text" : "password"}
-            placeholder="* Password (6 or more characters)"
-            required
-          />
-          <ShowPassword
-            src={isPasswordVisible ? Show : Hide}
-            onClick={togglePasswordVisibility}
-          />
-        </FieldWrapper>
-        <AlignSelections>
-          <Select
-            options={statusOptions}
-            value={selectedStatus}
-            onChange={handleStatusChange}
-            placeholder="* Status"
-            required
-            styles={selectStylesForOptions}
-          />
-          <Select
-            options={options}
-            value={selectedCountry}
-            onChange={handleCountryChange}
-            placeholder="* Country"
-            required
-            styles={selectStylesForCountry}
-          />
-        </AlignSelections>
-        <ConfirmWrapper>
-          <RegisterButton type="submit">Register</RegisterButton>
-          <WrapParagraphAndLink>
-            <p style={{ fontSize: "1.2rem", margin: "0" }}>
-              Already a member?{" "}
-            </p>
-            <AlreadyMember to="/login">Login</AlreadyMember>
-          </WrapParagraphAndLink>
-        </ConfirmWrapper>
-      </Form>
-    </Wrapper>
+    <>
+      {showAlert && (
+        <AlertComponent message={message} onClose={handleCloseAlert} />
+      )}
+      <Wrapper>
+        <LogoWrapper>
+          <Title>ATTACK</Title>
+          <LottieLogo animationData={AnimatedLogo} />
+          <Title>METER</Title>
+        </LogoWrapper>
+        <Form onSubmit={handleSubmit}>
+          <FieldWrapper>
+            <Input
+              name="first name"
+              type="text"
+              placeholder="* First name"
+              required
+            />
+          </FieldWrapper>
+          <FieldWrapper>
+            <Input
+              name="last name"
+              type="text"
+              placeholder="* Last name"
+              required
+            />
+          </FieldWrapper>
+          <FieldWrapper>
+            <Input name="Email" type="email" placeholder="* Email" required />
+          </FieldWrapper>
+          <FieldWrapper>
+            <Input
+              name="Password"
+              type={isPasswordVisible ? "text" : "password"}
+              placeholder="* Password (6 or more characters)"
+              required
+            />
+            <ShowPassword
+              src={isPasswordVisible ? Show : Hide}
+              onClick={togglePasswordVisibility}
+            />
+          </FieldWrapper>
+          <AlignSelections>
+            <Select
+              options={statusOptions}
+              value={selectedStatus}
+              onChange={handleStatusChange}
+              placeholder="* Status"
+              required
+              styles={selectStylesForOptions}
+            />
+            <Select
+              options={options}
+              value={selectedCountry}
+              onChange={handleCountryChange}
+              placeholder="* Country"
+              required
+              styles={selectStylesForCountry}
+            />
+          </AlignSelections>
+          <ConfirmWrapper>
+            <RegisterButton type="submit">Register</RegisterButton>
+            <WrapParagraphAndLink>
+              <p style={{ fontSize: "1.2rem", margin: "0" }}>
+                Already a member?{" "}
+              </p>
+              <AlreadyMember to="/login">Login</AlreadyMember>
+            </WrapParagraphAndLink>
+          </ConfirmWrapper>
+        </Form>
+      </Wrapper>
+    </>
   );
 }
 

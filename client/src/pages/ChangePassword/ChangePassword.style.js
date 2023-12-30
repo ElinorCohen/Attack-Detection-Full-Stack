@@ -58,3 +58,15 @@ export const Input = styled.input`
 export const ForgotPassword = styled(Link)`
   align-self: flex-end;
 `;
+
+export const ShowPassword = styled.img`
+  height: 1.3rem;
+  width: 1.3rem;
+  padding-top: 12px;
+  padding-right: 0px;
+  border-bottom: 1px solid grey;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;

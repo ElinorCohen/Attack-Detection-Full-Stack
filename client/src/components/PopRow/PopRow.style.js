@@ -19,7 +19,7 @@ export const PopRowWrapper = styled.div`
 
 export const PopRowContent = styled.div`
   position: relative;
-  background-color: whitesmoke;
+  background-color: #afafaf;
   width: 60%;
   max-height: 80%;
   padding: 20px;

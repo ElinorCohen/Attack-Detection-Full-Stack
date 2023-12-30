@@ -1,4 +1,5 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
@@ -17,6 +18,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", api);
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.listen(8000, () => {
   console.log("Server is listening on port 8000");

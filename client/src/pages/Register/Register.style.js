@@ -88,14 +88,21 @@ export const Title = styled.h1`
   font-size: 4.5rem;
   font-weight: 400;
   color: #dddada;
+  @media (max-height: 640px) {
+    margin: 0;
+  }
 `;
 
 export const LottieLogo = styled(Lottie)`
   animation-duration: 0.001;
-  height: 7rem;
-  width: 7rem;
-  padding-top: 55px;
+  height: 6rem;
+  width: 6rem;
+  padding-top: 60px;
   padding-right: 10px;
+  @media (max-height: 640px) {
+    /* padding-top: 15px; */
+    padding-block: 15px;
+  }
 `;
 
 export const LogoWrapper = styled.div`

@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   ProfileWrapper,
   Button,
+  ButtonsWrapper,
   EditableField,
   Field,
   Label,
@@ -13,6 +14,10 @@ import {
 import Select from "react-select";
 import countryList from "react-select-country-list";
 import defaultUserPicture from "../../assets/images/default-user-image.png";
+import trash from "../../assets/icons/trash-can.png";
+import edit from "../../assets/icons/pencil.png";
+import save from "../../assets/icons/diskette.png";
+import padlock from "../../assets/icons/padlock.png";
 
 import {
   useEffect,
@@ -20,9 +25,14 @@ import {
   useState,
   // useContext
 } from "react";
+import { useNavigate } from "react-router-dom";
+import AlertComponent from "../../components/Alert/AlertComponent ";
+import AlertDelete from "../../components/AlertDelete/AlertDelete";
 // import { AuthContext } from "../../contexts/AuthContext";
 
 function Profile() {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState({});
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(null);
@@ -38,8 +48,43 @@ function Profile() {
   );
 
   const [isEditing, setIsEditing] = useState(false);
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const [showDelete, setShowDelete] = useState(false);
+
+  function navigateChangePassword() {
+    navigate("/changepassword");
+  }
+
+  function navigateLogin() {
+    navigate("/login");
+  }
+
   // const { email } = useContext(AuthContext);
   // console.log(email);
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+  };
+
+  const handleCloseDelete = () => {
+    setShowDelete(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await axios.get("/api/User/deleteAccount");
+      console.log(response);
+      navigateLogin();
+    } catch (error) {
+      alert(error.response.data);
+    }
+  };
+
+  const handleClickDelete = () => {
+    setShowDelete(true);
+  };
 
   useEffect(() => {
     // Define an async function and immediately invoke it
@@ -65,15 +110,27 @@ function Profile() {
       ...user,
       [field]: value,
     });
+    console.log(user);
   };
 
-  const handleSaveChanges = () => {
-    // Here, you can send the updated user data to your backend API
-    // For simplicity, we're just toggling the editing state
-    console.log(selectedCountry);
-    user.country = selectedCountry ? selectedCountry.label : "";
-    user.status = selectedStatus ? selectedStatus.label : "";
-    console.log(user);
+  const handleSaveChanges = async () => {
+    try {
+      // Update the user state
+      user.country = selectedCountry ? selectedCountry.label : "";
+      user.status = selectedStatus ? selectedStatus.label : "";
+
+      // Make an Axios POST request to the backend
+      const response = await axios.post("/api/User/editUser", user);
+      console.log(response);
+      if (response.data.attackDetected !== "None") {
+        setShowAlert(true);
+        setMessage(`The detected attack was ${response.data.attackDetected}`);
+      }
+    } catch (error) {
+      console.error("Error while saving changes:", error);
+      // Handle error appropriately (e.g., show an error message to the user)
+    }
+    // Toggle the editing state
     setIsEditing(!isEditing);
   };
 
@@ -92,6 +149,10 @@ function Profile() {
       border: "1px solid black",
       borderRadius: "14px",
     }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999, // Set a high z-index for the dropdown menu
+    }),
   };
 
   const selectStylesForOptions = {
@@ -104,6 +165,10 @@ function Profile() {
       fontSize: "17px",
       border: "1px solid black",
       borderRadius: "14px",
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999, // Set a high z-index for the dropdown menu
     }),
   };
 
@@ -122,12 +187,26 @@ function Profile() {
         <input type="file" name="userImage" accept="image/*" />
         <button type="submit">Upload</button>
       </form> */}
+      {showAlert && (
+        <AlertComponent message={message} onClose={handleCloseAlert} />
+      )}
+      {showDelete && (
+        <AlertDelete
+          onClose={handleCloseDelete}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
       <ProfileWrapper>
         <ProfileContent>
           <HeaderWrapper>
             <img
               src={defaultUserPicture}
-              style={{ borderRadius: "50%", height: "110px", width: "110px" }}
+              style={{
+                borderRadius: "50%",
+                height: "110px",
+                width: "110px",
+                boxShadow: "0px 0px 9px grey",
+              }}
             />
             <h2 style={{ fontSize: "2rem", paddingLeft: "25px" }}>
               User Profile
@@ -149,7 +228,7 @@ function Profile() {
                   dangerouslySetInnerHTML={{
                     __html: user.firstName,
                   }}
-                ></UserData>
+                />
               )}
 
               <Label style={{ paddingLeft: "50px" }}>Last name:</Label>
@@ -162,7 +241,11 @@ function Profile() {
                   }
                 />
               ) : (
-                user.lastName
+                <UserData
+                  dangerouslySetInnerHTML={{
+                    __html: user.lastName,
+                  }}
+                />
               )}
             </NameFieldsWrapper>
           </Field>
@@ -193,6 +276,7 @@ function Profile() {
                 onChange={handleCountryChange}
                 required
                 styles={selectStylesForCountry}
+                menuPortalTarget={document.body}
               />
             ) : (
               <UserData>{user.country}</UserData>
@@ -213,16 +297,54 @@ function Profile() {
                 // placeholder={user.status}
                 required
                 styles={selectStylesForOptions}
+                menuPortalTarget={document.body}
               />
             ) : (
               <UserData>{user.status}</UserData>
             )}
           </Field>
+        </ProfileContent>
+        <ButtonsWrapper>
           <Button onClick={isEditing ? handleSaveChanges : handleToggleEditing}>
             {isEditing ? "Save Changes" : "Edit Profile"}
+            <img
+              src={isEditing ? save : edit}
+              alt=""
+              style={{
+                height: "0.8rem",
+                paddingLeft: "5px",
+                // paddingTop: "3px",
+              }}
+            />
           </Button>
-          <Button>Change Password</Button>
-        </ProfileContent>
+          <Button onClick={navigateChangePassword}>
+            Change Password
+            <img
+              src={padlock}
+              alt=""
+              style={{
+                height: "0.8rem",
+                paddingLeft: "5px",
+                // paddingTop: "3px",
+              }}
+            />
+          </Button>
+          <Button
+            onClick={handleClickDelete}
+            style={{ backgroundColor: "lightCoral" }}
+          >
+            Delete Account
+            <img
+              src={trash}
+              alt=""
+              style={{
+                height: "0.8rem",
+                paddingLeft: "5px",
+                // paddingTop: "3px",
+              }}
+            />
+          </Button>
+        </ButtonsWrapper>
       </ProfileWrapper>
     </>
   );

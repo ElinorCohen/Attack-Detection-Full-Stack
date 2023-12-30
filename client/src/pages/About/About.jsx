@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   AboutContainer,
-  CallToAction,
+  // CallToAction,
   FeatureItem,
   FeatureList,
   SectionContent,
@@ -112,7 +112,7 @@ function About() {
           everyone.
         </SectionContent>
 
-        <CallToAction href="/register">Get Started Today</CallToAction>
+        {/* <CallToAction href="/register">Get Started Today</CallToAction> */}
 
         <SectionContent>
           Remember, our goal is to promote responsible web security practices

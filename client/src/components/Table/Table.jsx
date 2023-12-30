@@ -24,12 +24,14 @@ import {
   SearchWrapper,
   SearchBar,
   ClearSearch,
+  NotFoundAnimation,
 } from "./Table.style";
 import PropTypes from "prop-types";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
 import AnimatedLoading from "../../assets/lotties/loading1.json";
+import AnimatedNotFound from "../../assets/lotties/empty.json";
 
 import SortAsc from "../../assets/icons/sort-up-whitesmoke.png";
 import SortDesc from "../../assets/icons/caret-down-whitesmoke.png.png";
@@ -41,6 +43,9 @@ import ThreeDots from "../../assets/icons/more_white.png";
 import searchIcon from "../../assets/icons/find.png";
 import closeIcon from "../../assets/icons/close.png";
 import PopRow from "../PopRow/PopRow";
+
+import AlertComponent from "../Alert/AlertComponent ";
+import trash from "../../assets/icons/trash-can.png";
 
 function Table({ url_data_route, collectionName }) {
   const itemsPerPage = 50;
@@ -58,6 +63,38 @@ function Table({ url_data_route, collectionName }) {
   const [GoToinputValue, setGoToInputValue] = useState(page);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [isPopupVisible, setPopupVisible] = useState(false);
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [message, setMessage] = useState("");
+  const [NotFound, setNotFound] = useState(false);
+
+  // const handleShowAlert = () => {
+  //   setShowAlert(true);
+  // };
+  let isClickable = true;
+
+  if (url_data_route === "getHistoryData") {
+    isClickable = false;
+  }
+
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+  };
+
+  const handleDeleteRow = async (item) => {
+    try {
+      console.log(item);
+
+      await axios.post("/api/User/deleteHistoryRow", {
+        body: item,
+      });
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting history row:", error);
+      // Handle the error, e.g., show a user-friendly message
+    }
+  };
 
   const handleRowClick = async (rowData) => {
     const cveSearch = rowData.CVE;
@@ -122,14 +159,20 @@ function Table({ url_data_route, collectionName }) {
         };
 
         const response = await axios.get(
-          `http://localhost:8000/api/User/${url_data_route}/${page}`,
+          `/api/User/${url_data_route}/${page}`,
           config
         );
 
         setData(response.data.data);
         setTotal(response.data.size);
+        if (response.data.attackDetected !== "None") {
+          setShowAlert(true);
+          setMessage(`The detected attack was ${response.data.attackDetected}`);
+        }
         console.log(response.data.size);
-        if (response.data.size > 0) setLoading(false);
+        setLoading(false);
+        if (response.data.size === 0) setNotFound(true);
+        else setNotFound(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -271,6 +314,16 @@ function Table({ url_data_route, collectionName }) {
     return pages;
   };
 
+  const handleMouseEnter = (e) => {
+    e.currentTarget.style.opacity = 0.7;
+    e.currentTarget.style.cursor = "pointer";
+  };
+
+  const handleMouseLeave = (e) => {
+    e.currentTarget.style.opacity = 1;
+    e.currentTarget.style.cursor = "default";
+  };
+
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= total) {
       setCurrentPage(parseInt(newPage));
@@ -306,6 +359,9 @@ function Table({ url_data_route, collectionName }) {
     <div>
       {isPopupVisible && (
         <PopRow rowData={selectedRowData[0]} onClose={handleClosePopRow} />
+      )}
+      {showAlert && (
+        <AlertComponent message={message} onClose={handleCloseAlert} />
       )}
       <SearchWrapper id="search">
         <SearchBar onSubmit={onFormSubmit}>
@@ -381,6 +437,7 @@ function Table({ url_data_route, collectionName }) {
             </TableRow>
           </thead>
           <tbody>
+            {NotFound && <NotFoundAnimation animationData={AnimatedNotFound} />}
             {loading ? (
               <LoadingWrapper>
                 <LoadingAnimation animationData={AnimatedLoading} />
@@ -389,15 +446,9 @@ function Table({ url_data_route, collectionName }) {
               data.map((item, index) => (
                 <TableRow
                   key={index}
-                  onClick={() => handleRowClick(item)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = 0.7; // Change opacity on hover
-                    e.currentTarget.style.cursor = "pointer"; // Change cursor to pointer
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = 1; // Reset opacity when not hovering
-                    e.currentTarget.style.cursor = "default"; // Reset cursor to default
-                  }}
+                  onClick={() => isClickable && handleRowClick(item)}
+                  onMouseEnter={(e) => isClickable && handleMouseEnter(e)}
+                  onMouseLeave={(e) => isClickable && handleMouseLeave(e)}
                 >
                   {columns.map((column) => (
                     <TableCell key={column}>
@@ -410,6 +461,33 @@ function Table({ url_data_route, collectionName }) {
                         : item[column]}
                     </TableCell>
                   ))}
+                  {!isClickable && (
+                    <button
+                      style={{
+                        backgroundColor: "#ff000000",
+                        borderColor: "#ff000000",
+                        marginTop: "13px",
+                        marginLeft: "17px",
+                        paddingInline: "0",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => handleDeleteRow(item)}
+                    >
+                      <img
+                        src={trash}
+                        alt="Delete"
+                        style={{
+                          height: "1.1rem",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = "scale(1.2)";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = "scale(1)";
+                        }}
+                      />
+                    </button>
+                  )}
                 </TableRow>
               ))
             )}
