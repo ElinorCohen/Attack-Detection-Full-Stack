@@ -6,6 +6,8 @@ const morgan = require("morgan");
 const cors = require("cors");
 const api = require("./api");
 require("./models/Connection");
+const https = require("https");
+
 // require("./models/Schemas");
 
 const app = express();
@@ -20,6 +22,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", api);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+const httpsServer = https.createServer(app);
 
 app.listen(8000, () => {
   console.log("Server is listening on port 8000");
