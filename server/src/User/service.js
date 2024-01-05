@@ -3,6 +3,7 @@ const nodemailer = require("nodemailer");
 const config = require("../../config.json");
 const jwt = require("jsonwebtoken");
 // const Cookie = require("js-cookie");
+const crypto = require("crypto");
 const axios = require("axios");
 const {
   isCSRFAttack,
@@ -23,17 +24,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-function generateRandomString(length) {
-  const charset =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let randomString = "";
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length);
-    randomString += charset.charAt(randomIndex);
-  }
-
-  return randomString;
+function generateRandomValue() {
+  // Generate a random string, you can customize this based on your requirements
+  return Math.random().toString(36).substring(2, 10);
 }
 
 module.exports.changePassword = async function (req, res) {
@@ -76,7 +69,13 @@ module.exports.forgotPassword = async function (req, res) {
     const token = jwt.sign({ email }, process.env.JWT_KEY);
 
     // const magicLink = `http://localhost:8000/api/user/changeForgottenPassword?token=${token}`;
-    const newPassword = generateRandomString(8);
+    const randomValue = generateRandomValue();
+    const newPassword = crypto
+      .createHash("md5")
+      .update(randomValue)
+      .digest("hex")
+      .substring(0, 8);
+
     console.log(newPassword);
 
     // const { success, message } = await allQueries.updatePassword(
@@ -241,7 +240,7 @@ module.exports.login = async function (req, res) {
       // console.log(token);
       return res
         .cookie("access_token", token, {
-          httpOnly: true,
+          // httpOnly: true,
           maxAge: 1000 * 60 * 60 * 24,
           secure: false,
         })
