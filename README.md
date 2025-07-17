@@ -11,7 +11,7 @@ Organizations face numerous security threats in the digital landscape, including
 - Develop a system that allows users to experiment with **XSS**, **CSRF**, and **NoSQL Injection** attacks.
 - Provide automatic **recognition and detection** of common web attacks.
 - Deliver a **user-friendly interface** to visualize and track detected attacks.
-- Generate **attack patterns** to recognize better and categorize threats.
+- Generate **attack patterns** to improve recognition and categorization of threats.
 
 ---
 
@@ -127,3 +127,15 @@ Demonstrates a login bypass using NoSQL injection and automatic detection by the
 | Database   | MongoDB Atlas                    |
 | Crawling   | Python, Selenium                 |
 | Dev Tools  | Visual Studio Code               |
+
+---
+
+## 👨‍💻 Authors
+
+- Shon Khundiashvili
+- Elinor Cohen
+
+> ⚠️ **Disclaimer**: This system is designed for **educational and training purposes only**.  
+> It contains intentionally vulnerable components (e.g., MD5 hashing) to demonstrate common security threats.  
+> **Do not deploy this system in production environments without implementing proper security measures.**
+
