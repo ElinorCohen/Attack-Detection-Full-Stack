@@ -1,4 +1,4 @@
-# 🛡️ Attack Meter – Web Vulnerability Simulation & Detection
+# 🛡️ AttackOMeter – Web Vulnerability Simulation & Detection
 
 ## 📌 Background
 
